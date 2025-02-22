@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
 
 import fi.iki.elonen.NanoHTTPD;
 
@@ -15,8 +16,10 @@ public class WebServer extends NanoHTTPD {
         super(port);
         this.webroot = webroot;
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
+        
         System.out.println("Web Server running at: http://localhost:" + port);
     }
+
 
     @Override
     public Response serve(IHTTPSession session) {
@@ -26,12 +29,27 @@ public class WebServer extends NanoHTTPD {
         if (Method.GET.equals(method)) {
             return requestGET(uri);
         } else if (Method.POST.equals(method)) {
-            return newFixedLengthResponse("POST request received");
+            return requestPOST(session);
+
+        
+        // The rest of these will only be implemented when the project will need them
+        } else if (Method.PUT.equals(method)) {
+            return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "PUT not implemented");
+        } else if (Method.DELETE.equals(method)) {
+            return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "DELETE not implemented");
+        } else if (Method.CONNECT.equals(method)) {
+            return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "CONNECT not implemented");
+        } else if (Method.OPTIONS.equals(method)) {
+            return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "OPTIONS not implemented");
+        } else if (Method.TRACE.equals(method)) {
+            return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "TRACE not implemented");
+        } else if (Method.PATCH.equals(method)) {
+            return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "PATCH not implemented");
         }
 
         return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "404 Not Found");
     }
-
+    
     private Response requestGET(String uri) {
         File fileToServe = new File(webroot + uri);
 
@@ -43,6 +61,7 @@ public class WebServer extends NanoHTTPD {
              * confuses a directory as a page, many GET requests of src="some/local/path" will be
              * screwed up.
              */
+
             if (!uri.endsWith("/")) {
                 return redirect(uri);
             }
@@ -63,6 +82,19 @@ public class WebServer extends NanoHTTPD {
 
         return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "404 Not Found");
     }
+
+    private Response requestPOST(IHTTPSession session) {
+        try {
+            HashMap<String, String> requestBody = new HashMap<>();
+            session.parseBody(requestBody);
+            return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, "200 OK"); // TODO: use POST data
+        } catch (IOException | ResponseException e) {
+            e.printStackTrace();
+            return newFixedLengthResponse(Response.Status.BAD_REQUEST, MIME_PLAINTEXT, "400 Bad Request");
+        }
+    }
+
+
 
     private Response redirect(String uri) {
         Response r = NanoHTTPD.newFixedLengthResponse(
