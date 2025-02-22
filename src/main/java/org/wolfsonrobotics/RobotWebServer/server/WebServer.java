@@ -61,7 +61,6 @@ public class WebServer extends NanoHTTPD {
              * confuses a directory as a page, many GET requests of src="some/local/path" will be
              * screwed up.
              */
-
             if (!uri.endsWith("/")) {
                 return redirect(uri);
             }
