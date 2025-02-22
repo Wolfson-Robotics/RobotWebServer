@@ -8,8 +8,9 @@ import org.wolfsonrobotics.RobotWebServer.server.WebServer;
 public class Main {
 
     public static void main(String[] args) {
+
         try {
-            new WebServer(8080, "");
+            new WebServer(8080, "website/");
         } catch (IOException e) {
             e.printStackTrace();
         }
