@@ -5,8 +5,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import fi.iki.elonen.NanoHTTPD;
+import org.json.JSONObject;
 
 public class WebServer extends NanoHTTPD {
 
@@ -82,11 +86,44 @@ public class WebServer extends NanoHTTPD {
         return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "404 Not Found");
     }
 
+
     private Response requestPOST(IHTTPSession session) {
         try {
-            HashMap<String, String> requestBody = new HashMap<>();
+
+            Map<String, String> requestBody = new HashMap<>();
             session.parseBody(requestBody);
-            return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, "200 OK"); // TODO: use POST data
+
+            String contentType = session.getHeaders().getOrDefault("content-type", "");
+            switch (contentType) {
+
+                case "application/x-www-form-urlencoded":
+                    Map<String, List<String>> formData = session.getParameters();
+                    // Parse form data here
+
+                    // Sample print out response for now
+                    return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, "200 OK" + "\n\n\n" +
+                            formData.entrySet().stream().map(e -> "Key: " +
+                                    e.getKey() + ", Vals: " + String.join(", ", e.getValue())
+                            ).collect(Collectors.joining("\n")));
+                    break;
+                case "application/json":
+                    JSONObject jsonBody = new JSONObject(requestBody.get("postData"));
+                    // Parse JSON here
+
+                    // Sample print out response for now
+                    return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, "200 OK" + "\n\n\n" +
+                            requestBody.get("postData"));
+                    break;
+                default:
+                    // Parse regular plain text data (assumedly) here
+
+                    // Sample print out response for now
+                    return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, "200 OK" + "\n\n\n" +
+                            requestBody.get("postData"));
+                    break;
+
+            }
+            // Print out whatever response here, further work needed
         } catch (IOException | ResponseException e) {
             e.printStackTrace();
             return newFixedLengthResponse(Response.Status.BAD_REQUEST, MIME_PLAINTEXT, "400 Bad Request");
