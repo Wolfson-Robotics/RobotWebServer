@@ -1,6 +1,8 @@
 package org.wolfsonrobotics.RobotWebServer;
 
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.Scanner;
 
 import org.wolfsonrobotics.RobotWebServer.server.WebServer;
 
