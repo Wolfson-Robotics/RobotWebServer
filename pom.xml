@@ -1,72 +1,72 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
-<modelVersion>4.0.0</modelVersion>
-<groupId>org.wolfsonrobotics.RobotWebServer</groupId>
-<artifactId>RobotWebServer</artifactId>
-<packaging>jar</packaging>
-<version>1.0-SNAPSHOT</version>
-<name>RobotWebServer</name>
-<url>http://maven.apache.org</url>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.wolfsonrobotics.RobotWebServer</groupId>
+    <artifactId>RobotWebServer</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <name>RobotWebServer</name>
+    <url>http://maven.apache.org</url>
 
-<dependencies>
+    <dependencies>
 
-    <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.13.2</version>
-        <scope>test</scope>
-    </dependency>
-    <dependency>
-        <groupId>org.nanohttpd</groupId>
-        <artifactId>nanohttpd</artifactId>
-        <version>2.3.1</version>
-    </dependency>
-    <dependency>
-        <groupId>org.nanohttpd</groupId>
-        <artifactId>nanohttpd-websocket</artifactId>
-        <version>2.3.1</version>
-    </dependency>
-    <dependency>
-        <groupId>org.json</groupId>
-        <artifactId>json</artifactId>
-        <version>20250107</version>
-    </dependency>
-    <dependency>
-        <groupId>javax.xml.bind</groupId>
-        <artifactId>jaxb-api</artifactId>
-        <version>2.3.1</version>
-    </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.nanohttpd</groupId>
+            <artifactId>nanohttpd</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.nanohttpd</groupId>
+            <artifactId>nanohttpd-websocket</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20250107</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+        </dependency>
 
 
+    </dependencies>
 
-</dependencies>
+    <build>
+        <plugins>
 
-<build>
-    <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>org.wolfsonrobotics.RobotWebServer.Main</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.4.0</version>
+                <configuration>
+                    <mainClass>org.wolfsonrobotics.RobotWebServer.Main</mainClass>
+                </configuration>
+            </plugin>
 
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <configuration>
-                <archive>
-                    <manifest>
-                        <addClasspath>true</addClasspath>
-                        <mainClass>org.wolfsonrobotics.RobotWebServer.Main</mainClass>
-                    </manifest>
-                </archive>
-            </configuration>
-        </plugin>
-        <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <version>1.4.0</version>
-            <configuration>
-                <mainClass>org.wolfsonrobotics.RobotWebServer.Main</mainClass>
-            </configuration>
-        </plugin>
-
-    </plugins>
-</build>
+        </plugins>
+    </build>
 
 </project>
