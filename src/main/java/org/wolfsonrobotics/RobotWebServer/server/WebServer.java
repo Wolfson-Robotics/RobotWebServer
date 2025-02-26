@@ -17,8 +17,10 @@ import fi.iki.elonen.NanoWSD;
 
 public class WebServer extends NanoHTTPD {
 
-    String webroot;
-    int port;
+    private final String webroot;
+    private final int port;
+
+    private final NanoWSD webSocket;
 
     public WebServer(int port, String webroot) throws IOException {
         super(port);
@@ -26,7 +28,17 @@ public class WebServer extends NanoHTTPD {
         this.webroot = webroot;
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
         
-        System.out.println("Web Server running at: http://localhost:" + port);
+        System.out.println("Web Server running at: http://localhost:" + this.port);
+
+
+        this.webSocket = new HandleSocket(9090);
+        try {
+            this.webSocket.start(60000);
+        } catch (IOException e) {
+            System.out.println("Could not start websocket.");
+            e.printStackTrace();
+        }
+        System.out.println("Websocket started");
     }
 
 
@@ -148,13 +160,6 @@ public class WebServer extends NanoHTTPD {
             secWebSocketAccept = NanoWSD.makeAcceptKey(secWebSocketKey);
         } catch (NoSuchAlgorithmException e) {
             return newFixedLengthResponse(Response.Status.BAD_REQUEST, "text/plain", "Websocket Key had Invalid Argument");
-        }
-
-        NanoWSD ss = new HandleSocket(9090);
-        try {
-            ss.start();
-        } catch (IOException e) {
-            return newFixedLengthResponse(Response.Status.CONFLICT, "text/plain", "Websocket on port " + 6090 + " already exists");
         }
 
         Response response = newFixedLengthResponse(Response.Status.SWITCH_PROTOCOL, "websocket", "");

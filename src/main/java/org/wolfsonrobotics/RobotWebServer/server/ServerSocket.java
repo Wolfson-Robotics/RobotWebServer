@@ -1,6 +1,7 @@
 package org.wolfsonrobotics.RobotWebServer.server;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 
 import org.wolfsonrobotics.RobotWebServer.fakerobot.FakeRobot;
 
@@ -31,18 +32,31 @@ public class ServerSocket extends WebSocket {
         OpenCV.loadLocally();
         try {
             message.setUnmasked();
-            System.out.println(message.getTextPayload());
+            System.out.println("Received message: " + message.getTextPayload());
             //sendFrame(message);
             FakeRobot robot = new FakeRobot();
             send(robot.stringifyMat(robot.getCameraFeed()));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            if (e.getMessage().trim().toLowerCase().contains("connection reset by peer")) {
+                System.out.println("Peer closed connection");
+            } else {
+                throw new RuntimeException(e);
+            }
         }
     }
 
     @Override
     protected void onException(IOException exception) {
-        exception.printStackTrace();
+        if (exception instanceof SocketTimeoutException) {
+            System.out.println("Websocked timed out");
+            try {
+                close(CloseCode.GoingAway, "Timed out", false);
+            } catch (IOException e) {
+                onException(exception);
+            }
+        } else {
+            exception.printStackTrace();
+        }
     }
 
     @Override

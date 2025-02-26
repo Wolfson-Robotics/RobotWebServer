@@ -5,10 +5,10 @@ import fi.iki.elonen.NanoWSD;
 public class HandleSocket extends NanoWSD {
 
     public HandleSocket(int port) {
-            super(port);
-        }
+        super(port);
+    }
     
-        @Override
+    @Override
     protected WebSocket openWebSocket(IHTTPSession handshake) {
         return new ServerSocket(handshake);
     }

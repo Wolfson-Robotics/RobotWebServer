@@ -1,11 +1,11 @@
-var socket = new WebSocket('wss://localhost:8080');
+var socket = new WebSocket('ws://localhost:9090');
 
 socket.onopen = function(event) {
   // Handle connection open
 };
 
 socket.onmessage = function(event) {
-    console.log(event)
+    console.log(event);
 };
 
 socket.onclose = function(event) {
