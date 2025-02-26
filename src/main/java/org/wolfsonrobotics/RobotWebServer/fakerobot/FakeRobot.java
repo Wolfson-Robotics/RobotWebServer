@@ -9,18 +9,10 @@ import org.opencv.core.Mat;
 
 public class FakeRobot {
 
-    /*
-     * What FakeRobot needs to be able to do:
-     * Simple movement function
-     * Simple rotation function
-     * Simple vertical arm extension function
-     * Return a discernable video feed using OpenCV
-     */
-
-    int rot = 0; //degrees
-    int locationX = 0;
-    int locationY = 0;
-    double armPosY = 0.3;
+    public int rot = 0; //degrees
+    public int locationX = 0;
+    public int locationY = 0;
+    public double armPosY = 0.3;
 
     public void moveBot(int plusX, int plusY) {
         locationX += plusX;
@@ -31,7 +23,7 @@ public class FakeRobot {
         rot += degrees;
     }
 
-    public void moveArm(int plusPosY) {
+    public void moveArm(double plusPosY) {
         armPosY += plusPosY;
         armPosY = armPosY > 1 ? 1 : armPosY;
         armPosY = armPosY < 0 ? 0 : armPosY;
