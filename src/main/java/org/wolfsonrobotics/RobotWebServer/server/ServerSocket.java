@@ -2,10 +2,13 @@ package org.wolfsonrobotics.RobotWebServer.server;
 
 import java.io.IOException;
 
+import org.wolfsonrobotics.RobotWebServer.fakerobot.FakeRobot;
+
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import fi.iki.elonen.NanoWSD.WebSocket;
 import fi.iki.elonen.NanoWSD.WebSocketFrame;
 import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
+import nu.pattern.OpenCV;
 
 public class ServerSocket extends WebSocket {
 
@@ -25,10 +28,13 @@ public class ServerSocket extends WebSocket {
 
     @Override
     protected void onMessage(WebSocketFrame message) {
+        OpenCV.loadLocally();
         try {
             message.setUnmasked();
             System.out.println(message.getTextPayload());
-            sendFrame(message);
+            //sendFrame(message);
+            FakeRobot robot = new FakeRobot();
+            send(robot.stringifyMat(robot.getCameraFeed()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
