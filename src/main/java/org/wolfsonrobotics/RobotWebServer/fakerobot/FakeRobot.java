@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
@@ -40,36 +41,25 @@ public class FakeRobot {
 
     // String of pixels separated by commas whose elements themselves are
     // separated by dashes for rgb vals
-    int curFrame = 0;
+    private int curFrame = 0;
     public Mat getCameraFeed() {
-        Mat cameraFeed = Mat.eye(1920, 1080, CvType.CV_8UC1);
+        Mat cameraFeed = Mat.eye(1080, 1920, CvType.CV_8UC3);
 
-        if (cameraFeed.cols() == curFrame) {
+        if (curFrame >= cameraFeed.rows()) {
             curFrame = 0;
         }
-        for (int col = 0; col < cameraFeed.cols(); col++) {
-            cameraFeed.put(curFrame, col, new double[] { 255, 255, 255 });
-        }
-        curFrame++;
 
-        return cameraFeed;
-    }
-
-
-    public String stringifyMat(Mat input) {
-        List<String> pixels = new ArrayList<>();
-        for (int row = 0; row < input.rows(); row++) {
-            for (int col = 0; col < input.cols(); col++) {
-
-                pixels.add(String.join("-", 
-                    Arrays.stream(input.get(row, col))
-                        .mapToObj(String::valueOf)
-                        .toArray(String[]::new))
-
-                );
+        for (int f = curFrame; f <= curFrame + 20; f++) {
+            if (f >= cameraFeed.rows()) {
+                break;
+            }
+            for (int col = 0; col < cameraFeed.cols(); col++) {
+                cameraFeed.put(f, col, 255, 255, 255);
             }
         }
-        return String.join(",", pixels);
+        curFrame += 20;
+
+        return cameraFeed;
     }
 
 }

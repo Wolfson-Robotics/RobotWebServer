@@ -1,6 +1,7 @@
 package org.wolfsonrobotics.RobotWebServer.server;
 
 import fi.iki.elonen.NanoWSD;
+import org.wolfsonrobotics.RobotWebServer.server.sockets.CameraSocket;
 
 public class HandleSocket extends NanoWSD {
 
@@ -10,7 +11,12 @@ public class HandleSocket extends NanoWSD {
     
     @Override
     protected WebSocket openWebSocket(IHTTPSession handshake) {
-        return new ServerSocket(handshake);
+        switch (handshake.getUri()) {
+            case "/camera_feed":
+                return new CameraSocket(handshake);
+            default:
+                return new ServerSocket(handshake);
+        }
     }
     
 }
