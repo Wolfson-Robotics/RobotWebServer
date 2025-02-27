@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.json.JSONObject;
+import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
@@ -21,11 +22,13 @@ public class WebServer extends NanoHTTPD {
     private final int port;
 
     private final NanoWSD webSocket;
+    private final CommunicationLayer comLayer;
 
-    public WebServer(int port, String webroot) throws IOException {
+    public WebServer(int port, String webroot, Object robotInstance) throws IOException {
         super(port);
         this.port = port;
         this.webroot = webroot;
+        this.comLayer = new CommunicationLayer(robotInstance);
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
         
         System.out.println("Web Server running at: http://localhost:" + this.port);
@@ -39,6 +42,7 @@ public class WebServer extends NanoHTTPD {
             e.printStackTrace();
         }
         System.out.println("Websocket started");
+        
     }
 
 
@@ -178,5 +182,14 @@ public class WebServer extends NanoHTTPD {
         r.addHeader("Location", uri + "/");
         return r;
     }
+/*
+    public Response urlGET(String url) {
+        switch (url) {
+            case "/com_layer/all_inputs":
+                return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, comLayer.getInstanceMethods().toString());
+        }
 
+        return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Url not found");
+    }
+*/
 }
