@@ -76,11 +76,14 @@ public class WebServer extends NanoHTTPD {
     
     private Response requestGET(IHTTPSession session) {
 
-        //Check if it's a websocket GET request
+        // Check if it's a websocket GET request
         String websocketHeader = session.getHeaders().get("upgrade");
         if (websocketHeader != null && websocketHeader.equalsIgnoreCase("websocket")) {
             return requestWebsocket(session);
         }
+        //Check if it's a server side URL
+        //TODO: Implement query parameter strings
+        //session.getQueryParameterString
 
         String uri = session.getUri();
         File fileToServe = new File(webroot + uri);
@@ -182,14 +185,21 @@ public class WebServer extends NanoHTTPD {
         r.addHeader("Location", uri + "/");
         return r;
     }
-/*
-    public Response urlGET(String url) {
+
+    // TODO: Implement mapping GET URLs to their respective class handlers
+    /*     public Response urlGET(String url) {
         switch (url) {
-            case "/com_layer/all_inputs":
+            case "/robot/all_methods":
+
+                JSONObject allMethodsObj = new JSONObject();
+                Method[] allMethods = comLayer.getCallableMethods();
+                for (Method method : allMethods) {
+                    allMethodsObj.put(method.getName(), method.getParameters());
+                }
                 return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, comLayer.getInstanceMethods().toString());
         }
 
         return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Url not found");
-    }
-*/
+    }*/
+    
 }

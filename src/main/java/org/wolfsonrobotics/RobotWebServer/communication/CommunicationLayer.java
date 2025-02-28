@@ -2,7 +2,9 @@ package org.wolfsonrobotics.RobotWebServer.communication;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.security.InvalidParameterException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.TreeMap;
 
@@ -22,13 +24,20 @@ public class CommunicationLayer {
 
         inputs.get(inputName).invoke(instance, args);
     }
-
+/*
     public void createInput(String inputName, Method method) {
         inputs.put(inputName, method);
     }
 
     public Collection<Method> getInstanceMethods() {
         return inputs.values();
+    }*/
+    
+    public Method[] getCallableMethods() {
+        Method[] methods = instance.getClass().getDeclaredMethods();
+        return Arrays.stream(methods).filter(m -> {
+            return Modifier.isPublic(m.getModifiers()) || Modifier.isProtected(m.getModifiers());
+        }).toArray(Method[]::new);
     }
 
     public Method getInstanceMethod(String methodName) throws InvalidParameterException {
