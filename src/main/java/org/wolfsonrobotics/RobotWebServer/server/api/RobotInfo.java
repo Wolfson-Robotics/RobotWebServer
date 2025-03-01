@@ -39,9 +39,9 @@ public class RobotInfo extends RobotAPI {
                 case "all_methods":
                     return getAllMethods().toString();
                 case "team_name":
-                    return comLayer.getTeamName();
+                    return new JSONObject().put("team_name", comLayer.getTeamName()).toString();
                 case "team_number":
-                    return Integer.toString(comLayer.getTeamNumber());
+                    return new JSONObject().put("team_number", comLayer.getTeamNumber()).toString();
             }
         }
 

@@ -13,7 +13,7 @@ public class WebDashboard {
     
     String teamName;
     int teamNumber;
-    int port;
+    int port; //TODO: make everything in the codebase grab this port (especially the js)
     String webroot;
     Object robotInstance;
 
