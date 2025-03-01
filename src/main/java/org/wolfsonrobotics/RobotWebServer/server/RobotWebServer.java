@@ -7,19 +7,19 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import org.json.JSONObject;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
-import org.wolfsonrobotics.RobotWebServer.server.api.AllMethods;
-import org.wolfsonrobotics.RobotWebServer.server.api.BaseAPI;
-import org.wolfsonrobotics.RobotWebServer.server.api.CallMethod;
 import org.wolfsonrobotics.RobotWebServer.server.api.CameraFeed;
 import org.wolfsonrobotics.RobotWebServer.server.api.RobotAPI;
+import org.wolfsonrobotics.RobotWebServer.server.api.RobotInfo;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.APIException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.MalformedRequestException;
@@ -47,10 +47,8 @@ public class RobotWebServer extends NanoHTTPD {
         this.comLayer = new CommunicationLayer(robotInstance);
 
         // Construct map since Map.ofEntries is not supported in Java 8
-        this.urlHandlerMap.put("/robot/all_methods", AllMethods.class);
-        this.urlHandlerMap.put("/robot/call_method", CallMethod.class);
-        this.urlHandlerMap.put("/robot/camera_feed", CameraFeed.class);
-
+        this.urlHandlerMap.put("/robot", RobotInfo.class);
+        this.urlHandlerMap.put("/camera_feed", CameraFeed.class);
 
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
         System.out.println("Web Server running at: http://localhost:" + this.port);
@@ -164,10 +162,6 @@ public class RobotWebServer extends NanoHTTPD {
         
     }
 
-
-
-
-
     private Response redirect(String uri) {
         Response r = NanoHTTPD.newFixedLengthResponse(
                 Response.Status.REDIRECT,
@@ -176,9 +170,6 @@ public class RobotWebServer extends NanoHTTPD {
         r.addHeader("Location", uri + "/");
         return r;
     }
-
-
-
 
     private Response handleAPI(IHTTPSession session) {
 
@@ -194,13 +185,17 @@ public class RobotWebServer extends NanoHTTPD {
 
             try {
                 RobotAPI handle = handler.getConstructor(IHTTPSession.class, CommunicationLayer.class).newInstance(session, this.comLayer);
-                output.append(handle.handle());
-                mimeType.setLength(0);
-                mimeType.append(handle.mimeType);
-                
+                String message = handle.handle();
+                if (message != null) {
+                    output.append(message);
+                    mimeType.setLength(0);
+                    mimeType.append(handle.mimeType);
+                } else {
+                    output.flush();
+                }
+
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException
                     | RobotException e) {
-
                 output.append(e.getMessage());
                 status.set(Response.Status.INTERNAL_ERROR);
                 e.printStackTrace();
@@ -209,6 +204,7 @@ public class RobotWebServer extends NanoHTTPD {
                 output.append(e.getMessage());
                 status.set(Response.Status.BAD_REQUEST);
                 e.printStackTrace();
+
             } catch (APIException e) {
                 // Stub caused by the BaseAPI's absorption of exceptions into
                 // APIException as per its throws declaration, disregard
@@ -262,5 +258,25 @@ public class RobotWebServer extends NanoHTTPD {
 
     }
 
+    /*All static methods go below here */   
+
+    //Returns query parameters as a TreeMap
+    public static TreeMap<String, ArrayList<String>> parseQueryParameters(IHTTPSession session) {
+        TreeMap<String, ArrayList<String>> map = new TreeMap<>();
+        String query = session.getQueryParameterString();
+        if (query == null) { return null; }
+
+        String[] parameters = query.split("&");
+
+        for (String parameter : parameters) {
+            String[] arrParameter = parameter.split("=");
+            ArrayList<String> parameterValues = map.get(arrParameter[0]);
+            parameterValues = (parameterValues == null) ? new ArrayList<String>() : parameterValues;
+            parameterValues.add(arrParameter[1]);
+            map.put(arrParameter[0], parameterValues);
+        }
+
+        return map;        
+    }
 
 }
