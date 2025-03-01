@@ -7,16 +7,14 @@ import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.wolfsonrobotics.RobotWebServer.server.DashboardRobot;
+
 public class CommunicationLayer {
     
-    private final Object instance;
-    private final String teamName;
-    private final int teamNumber;
+    private final DashboardRobot instance;
 
-    public CommunicationLayer(Object instance,  String teamName, int teamNumber) {
+    public CommunicationLayer(DashboardRobot instance) {
         this.instance = instance;
-        this.teamName = teamName;
-        this.teamNumber = teamNumber;
     }
 
 
@@ -71,11 +69,11 @@ public class CommunicationLayer {
     }
     
     public String getTeamName() {
-        return teamName;
+        return instance.getTeamName();
     }
 
     public int getTeamNumber() {
-        return teamNumber;
+        return instance.getTeamNumber();
     }
 
 

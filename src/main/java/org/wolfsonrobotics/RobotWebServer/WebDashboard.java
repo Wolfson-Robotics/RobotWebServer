@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 import org.wolfsonrobotics.RobotWebServer.fakerobot.FakeRobot;
+import org.wolfsonrobotics.RobotWebServer.server.DashboardRobot;
 import org.wolfsonrobotics.RobotWebServer.server.RobotWebServer;
 
 /*
@@ -15,12 +16,12 @@ public class WebDashboard {
     int teamNumber;
     int port; //TODO: make everything in the codebase grab this port (especially the js)
     String webroot;
-    Object robotInstance;
+    DashboardRobot robotInstance;
 
     RobotWebServer ws;
 
 
-    public WebDashboard(String teamName, int teamNumber, int port, String webroot, Object robotInstance) {
+    public WebDashboard(String teamName, int teamNumber, int port, String webroot, DashboardRobot robotInstance) {
         this.teamName = teamName;
         this.teamNumber = teamNumber;
         this.port = port;
@@ -38,7 +39,7 @@ public class WebDashboard {
             ws = new RobotWebServer(
                 port, 
                 webroot, 
-                new CommunicationLayer(robotInstance, teamName, teamNumber));
+                new CommunicationLayer(robotInstance));
         } catch (IOException e) {
             e.printStackTrace();
             return false;
