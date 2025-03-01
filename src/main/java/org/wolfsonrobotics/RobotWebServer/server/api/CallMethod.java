@@ -5,7 +5,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException;
-import org.wolfsonrobotics.RobotWebServer.server.api.exception.ExecutionException;
+import org.wolfsonrobotics.RobotWebServer.server.api.exception.RobotException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.MalformedRequestException;
 
 import java.lang.reflect.InvocationTargetException;
@@ -20,7 +20,7 @@ public class CallMethod extends RobotAPI {
     }
 
     @Override
-    public String handle() throws BadInputException, MalformedRequestException, ExecutionException {
+    public String handle() throws BadInputException, MalformedRequestException, RobotException {
 
         if (!session.getMethod().equals(NanoHTTPD.Method.POST)) {
             throw new MalformedRequestException("Only acceptable method is POST");
@@ -44,6 +44,13 @@ public class CallMethod extends RobotAPI {
         if (!inputJSON.has("args")) {
             throw new BadInputException("No method args were specified");
         }
+        if (!(inputJSON.get("name") instanceof String)) {
+            throw new BadInputException("The method name must be of type string");
+        }
+        if (!(inputJSON.get("args") instanceof JSONArray)) {
+            throw new BadInputException("The method arguments must be of type array");
+        }
+
 
         JSONArray args = inputJSON.getJSONArray("args");
         List<Object> argTypes = IntStream.range(0, args.length())
@@ -53,9 +60,9 @@ public class CallMethod extends RobotAPI {
         try {
             this.comLayer.call(inputJSON.getString("name"), argTypes);
         } catch (IllegalAccessException | NoSuchMethodException e) {
-            throw new BadInputException("The method specified either does not exist or cannot be called");
+            throw new BadInputException("The method with the specified arguments either does not exist or cannot be called");
         } catch (InvocationTargetException e) {
-            throw new ExecutionException(e);
+            throw new RobotException(e);
         }
 
         return "{\"message\":\"Success\"}";

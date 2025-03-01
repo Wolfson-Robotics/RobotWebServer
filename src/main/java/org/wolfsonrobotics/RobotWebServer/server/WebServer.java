@@ -6,8 +6,9 @@ import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 import org.wolfsonrobotics.RobotWebServer.server.api.AllMethods;
 import org.wolfsonrobotics.RobotWebServer.server.api.CallMethod;
 import org.wolfsonrobotics.RobotWebServer.server.api.RobotAPI;
+import org.wolfsonrobotics.RobotWebServer.server.api.exception.APIException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException;
-import org.wolfsonrobotics.RobotWebServer.server.api.exception.ExecutionException;
+import org.wolfsonrobotics.RobotWebServer.server.api.exception.RobotException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.MalformedRequestException;
 
 import java.io.*;
@@ -229,7 +230,7 @@ public class WebServer extends NanoHTTPD {
                 );
             } catch (InstantiationException | IllegalAccessException |
                     InvocationTargetException | NoSuchMethodException |
-                     ExecutionException e) {
+                     RobotException e) {
 
                 output.append(e.getMessage());
                 status.set(Response.Status.INTERNAL_ERROR);
@@ -238,6 +239,12 @@ public class WebServer extends NanoHTTPD {
             } catch (MalformedRequestException | BadInputException e) {
                 output.append(e.getMessage());
                 status.set(Response.Status.BAD_REQUEST);
+                e.printStackTrace();
+            } catch (APIException e) {
+                // Stub caused by the BaseAPI's absorption of exceptions into
+                // APIException as per its throws declaration, disregard
+                output.append(e.getMessage());
+                status.set(Response.Status.INTERNAL_ERROR);
                 e.printStackTrace();
             }
         });

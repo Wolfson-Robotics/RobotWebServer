@@ -3,9 +3,7 @@ package org.wolfsonrobotics.RobotWebServer.server.api;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import org.json.JSONObject;
-import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException;
-import org.wolfsonrobotics.RobotWebServer.server.api.exception.ExecutionException;
-import org.wolfsonrobotics.RobotWebServer.server.api.exception.MalformedRequestException;
+import org.wolfsonrobotics.RobotWebServer.server.api.exception.APIException;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -20,7 +18,7 @@ public abstract class BaseAPI {
     }
 
 
-    public abstract String handle() throws BadInputException, MalformedRequestException, ExecutionException;
+    public abstract String handle() throws APIException;
 
 
     public Map<String, String> parsePOST() throws NanoHTTPD.ResponseException, IOException {

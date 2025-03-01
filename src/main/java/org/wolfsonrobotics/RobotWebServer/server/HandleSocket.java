@@ -12,7 +12,7 @@ public class HandleSocket extends NanoWSD {
     @Override
     protected WebSocket openWebSocket(IHTTPSession handshake) {
         switch (handshake.getUri()) {
-            case "/camera_feed":
+            case "/robot/camera_feed":
                 return new CameraSocket(handshake);
             default:
                 return new ServerSocket(handshake);

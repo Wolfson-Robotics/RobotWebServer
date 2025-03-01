@@ -1,4 +1,4 @@
-const cameraSocket = new WebSocket("ws://localhost:9090/camera_feed");
+const cameraSocket = new WebSocket("ws://localhost:9090/robot/camera_feed");
 cameraSocket.binaryType = "arraybuffer";
 
 cameraSocket.onopen = (e) => {
