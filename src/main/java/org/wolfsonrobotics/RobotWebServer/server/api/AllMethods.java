@@ -1,5 +1,6 @@
 package org.wolfsonrobotics.RobotWebServer.server.api;
 
+import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import org.json.JSONObject;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
@@ -12,6 +13,7 @@ public class AllMethods extends RobotAPI {
     
     public AllMethods(IHTTPSession session, CommunicationLayer comLayer) {
         super(session, comLayer);
+        mimeType = "application/json";
     }
 
     @Override
