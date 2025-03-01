@@ -3,13 +3,12 @@ package org.wolfsonrobotics.RobotWebServer.server.sockets;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
 import nu.pattern.OpenCV;
-
-import java.io.IOException;
-
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.wolfsonrobotics.RobotWebServer.fakerobot.FakeRobot;
+
+import java.io.IOException;
 
 
 public class CameraSocket extends BaseSocket {
@@ -36,6 +35,7 @@ public class CameraSocket extends BaseSocket {
 
         // TODO: Probably move all this to its own class later
         // TODO: Make it automatically update without need for future requests
+        // TODO: Harrison please fix this
         Mat cameraFeed = robot.getCameraFeed();
         /* byte[] fullMatBytes = new byte[(int) (cameraFeed.total() * cameraFeed.elemSize())];
         cameraFeed.get(0, 0, fullMatBytes); */

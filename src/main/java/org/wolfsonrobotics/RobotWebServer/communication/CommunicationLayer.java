@@ -5,39 +5,55 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.TreeMap;
-
-import org.json.JSONObject;
+import java.util.List;
 
 public class CommunicationLayer {
     
     private final Object instance;
-    private TreeMap<String, Method> inputs = new TreeMap<>();
 
     public CommunicationLayer(Object instance) {
         this.instance = instance;
     }
 
-    private void call(String inputName, Object... args) throws IllegalAccessException, InvocationTargetException {
-        if (!inputs.containsKey(inputName)) { return; }
 
-        inputs.get(inputName).invoke(instance, args);
-    }
-/*
-    public void createInput(String inputName, Method method) {
-        inputs.put(inputName, method);
+    public void call(String inputName, Object... args) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        Method method = instance.getClass().getMethod(inputName,
+                Arrays.stream(args).map(obj -> {
+                    // Convert the wrapper classes to their primitive counterparts, as if
+                    // a method has primitive parameters, then wrapper classes will not
+                    // qualify for finding the method with those primitive parameters
+                    Class<?> clazz = obj.getClass();
+                    if (clazz.equals(Integer.class)) {
+                        return int.class;
+                    } else if (clazz.equals(Double.class)) {
+                        return double.class;
+                    } else if (clazz.equals(Long.class)) {
+                        return long.class;
+                    } else if (clazz.equals(Float.class)) {
+                        return float.class;
+                    } else if (clazz.equals(Short.class)) {
+                        return short.class;
+                    } else if (clazz.equals(Byte.class)) {
+                        return byte.class;
+                    } else if (clazz.equals(Boolean.class)) {
+                        return boolean.class;
+                    } else if (clazz.equals(Character.class)) {
+                        return char.class;
+                    } else {
+                        return clazz;
+                    }
+                }).toArray(Class[]::new));
+        method.invoke(instance, args);
     }
 
-    public Collection<Method> getInstanceMethods() {
-        return inputs.values();
-    }*/
+    public void call(String inputName, List<Object> args) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        call(inputName, args.toArray());
+    }
+
     
     public Method[] getCallableMethods() {
         Method[] methods = instance.getClass().getDeclaredMethods();
-        return Arrays.stream(methods).filter(m -> {
-            return Modifier.isPublic(m.getModifiers()) || Modifier.isProtected(m.getModifiers());
-        }).toArray(Method[]::new);
+        return Arrays.stream(methods).filter(m -> Modifier.isPublic(m.getModifiers()) || Modifier.isProtected(m.getModifiers())).toArray(Method[]::new);
     }
 
     public Method getInstanceMethod(String methodName) throws InvalidParameterException {
@@ -48,16 +64,6 @@ public class CommunicationLayer {
         }
 
         throw new InvalidParameterException();
-    }
-
-    public JSONObject getJSONInputs() {
-        JSONObject json = new JSONObject();
-        
-        for(String name : inputs.keySet()) {
-            json.put(name, inputs.get(name));
-        }
-
-        return json;
     }
     
 

@@ -1,15 +1,15 @@
 package org.wolfsonrobotics.RobotWebServer.server.api;
 
-import org.wolfsonrobotics.RobotWebServer.communication.*;
+import fi.iki.elonen.NanoHTTPD;
+import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 
-public abstract class RobotAPI implements BaseAPI {
+public abstract class RobotAPI extends BaseAPI {
     
-    private final CommunicationLayer comLayer;
+    protected final CommunicationLayer comLayer;
 
-    protected RobotAPI(CommunicationLayer comLayer) {
-        //TODO: implement
+    protected RobotAPI(NanoHTTPD.IHTTPSession session, CommunicationLayer comLayer) {
+        super(session);
         this.comLayer = comLayer;
-        return;
     }
 
 }

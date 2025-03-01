@@ -1,20 +1,21 @@
 package org.wolfsonrobotics.RobotWebServer.server;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import org.json.JSONObject;
-import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
-
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
+import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
+import org.wolfsonrobotics.RobotWebServer.server.api.AllMethods;
+import org.wolfsonrobotics.RobotWebServer.server.api.CallMethod;
+import org.wolfsonrobotics.RobotWebServer.server.api.RobotAPI;
+import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException;
+import org.wolfsonrobotics.RobotWebServer.server.api.exception.ExecutionException;
+import org.wolfsonrobotics.RobotWebServer.server.api.exception.MalformedRequestException;
+
+import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class WebServer extends NanoHTTPD {
 
@@ -24,15 +25,23 @@ public class WebServer extends NanoHTTPD {
     private final NanoWSD webSocket;
     private final CommunicationLayer comLayer;
 
+
+    private final Map<String, Class<? extends RobotAPI>> urlHandlerMap = new HashMap<>();
+
+
     public WebServer(int port, String webroot, Object robotInstance) throws IOException {
         super(port);
         this.port = port;
         this.webroot = webroot;
         this.comLayer = new CommunicationLayer(robotInstance);
-        start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
-        
-        System.out.println("Web Server running at: http://localhost:" + this.port);
 
+        // Construct map since Map.ofEntries is not supported in Java 8
+        this.urlHandlerMap.put("/robot/all_methods", AllMethods.class);
+        this.urlHandlerMap.put("/robot/call_method", CallMethod.class);
+
+
+        start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
+        System.out.println("Web Server running at: http://localhost:" + this.port);
 
         this.webSocket = new HandleSocket(9090);
         try {
@@ -73,7 +82,9 @@ public class WebServer extends NanoHTTPD {
 
         return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "404 Not Found");
     }
-    
+
+
+
     private Response requestGET(IHTTPSession session) {
 
         // Check if it's a websocket GET request
@@ -114,13 +125,19 @@ public class WebServer extends NanoHTTPD {
             }
         }
 
-        return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "404 Not Found");
+        return handleAPI(session);
     }
 
 
-    private Response requestPOST(IHTTPSession session) {
-        try {
 
+    private Response requestPOST(IHTTPSession session) {
+//        try {
+
+        // TODO: Figure out what to truly do with the stub I created, probably move
+        // the handling of the POST data to the BaseAPI function where types of data
+        // can preferably be converted to JSON
+            return handleAPI(session);
+            /*
             Map<String, String> requestBody = new HashMap<>();
             session.parseBody(requestBody);
 
@@ -148,12 +165,13 @@ public class WebServer extends NanoHTTPD {
                     // Sample print out response for now
                     return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, "200 OK" + "\n\n\n" +
                             requestBody.get("postData"));
-            }
+            }*/
             // Print out whatever response here, further work needed
+        /*
         } catch (IOException | ResponseException e) {
             e.printStackTrace();
             return newFixedLengthResponse(Response.Status.BAD_REQUEST, MIME_PLAINTEXT, "400 Bad Request");
-        }
+        }*/
     }
 
     private Response requestWebsocket(IHTTPSession session) {
@@ -177,6 +195,10 @@ public class WebServer extends NanoHTTPD {
         
     }
 
+
+
+
+
     private Response redirect(String uri) {
         Response r = NanoHTTPD.newFixedLengthResponse(
                 Response.Status.REDIRECT,
@@ -186,20 +208,47 @@ public class WebServer extends NanoHTTPD {
         return r;
     }
 
-    // TODO: Implement mapping GET URLs to their respective class handlers
-    /*     public Response urlGET(String url) {
-        switch (url) {
-            case "/robot/all_methods":
 
-                JSONObject allMethodsObj = new JSONObject();
-                Method[] allMethods = comLayer.getCallableMethods();
-                for (Method method : allMethods) {
-                    allMethodsObj.put(method.getName(), method.getParameters());
-                }
-                return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, comLayer.getInstanceMethods().toString());
+
+
+
+    private Response handleAPI(IHTTPSession session) {
+
+        AtomicReference<Response.Status> status = new AtomicReference<>(Response.Status.OK);
+        StringWriter output = new StringWriter();
+
+        urlHandlerMap.forEach((url, handler) -> {
+            if (!url.equalsIgnoreCase(session.getUri()) || output.getBuffer().length() > 0) {
+                return;
+            }
+
+            try {
+                output.append(handler.getConstructor(IHTTPSession.class, CommunicationLayer.class)
+                        .newInstance(session, this.comLayer)
+                        .handle()
+                );
+            } catch (InstantiationException | IllegalAccessException |
+                    InvocationTargetException | NoSuchMethodException |
+                     ExecutionException e) {
+
+                output.append(e.getMessage());
+                status.set(Response.Status.INTERNAL_ERROR);
+                e.printStackTrace();
+
+            } catch (MalformedRequestException | BadInputException e) {
+                output.append(e.getMessage());
+                status.set(Response.Status.BAD_REQUEST);
+                e.printStackTrace();
+            }
+        });
+
+        if (output.getBuffer().length() == 0) {
+            output.append("404 Not Found");
+            status.set(Response.Status.NOT_FOUND);
         }
+        return newFixedLengthResponse(status.get(), MIME_PLAINTEXT, output.toString());
 
-        return newFixedLengthResponse(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Url not found");
-    }*/
-    
+    }
+
+
 }

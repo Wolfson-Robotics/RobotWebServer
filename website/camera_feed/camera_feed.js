@@ -29,9 +29,8 @@ cameraSocket.onmessage = (e) => {
     canvas.width = width;
     canvas.height = height;
     canvas.getContext("2d").putImageData(new ImageData(rgbBytes, width, height), 0, 0);
-    canvas.style.width = "40%";
-    canvas.style.height = "40%";
+    // canvas.style.width = "40%";
+    // canvas.style.height = "40%";
     cameraSocket.send("data");
 
 };
-cameraSocket.send("data");

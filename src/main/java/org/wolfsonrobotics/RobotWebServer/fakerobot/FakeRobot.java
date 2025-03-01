@@ -1,10 +1,6 @@
 package org.wolfsonrobotics.RobotWebServer.fakerobot;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
