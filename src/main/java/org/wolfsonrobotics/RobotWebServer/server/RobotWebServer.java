@@ -40,11 +40,11 @@ public class RobotWebServer extends NanoHTTPD {
     private final Map<String, Class<? extends RobotAPI>> urlHandlerMap = new HashMap<>();
 
 
-    public RobotWebServer(int port, String webroot, Object robotInstance) throws IOException {
+    public RobotWebServer(int port, String webroot, CommunicationLayer comLayer) throws IOException {
         super(port);
         this.port = port;
         this.webroot = webroot;
-        this.comLayer = new CommunicationLayer(robotInstance);
+        this.comLayer = comLayer;
 
         // Construct map since Map.ofEntries is not supported in Java 8
         this.urlHandlerMap.put("/robot", RobotInfo.class);

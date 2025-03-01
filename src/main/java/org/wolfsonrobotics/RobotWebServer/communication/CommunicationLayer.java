@@ -10,9 +10,13 @@ import java.util.List;
 public class CommunicationLayer {
     
     private final Object instance;
+    private final String teamName;
+    private final int teamNumber;
 
-    public CommunicationLayer(Object instance) {
+    public CommunicationLayer(Object instance,  String teamName, int teamNumber) {
         this.instance = instance;
+        this.teamName = teamName;
+        this.teamNumber = teamNumber;
     }
 
 
@@ -66,6 +70,13 @@ public class CommunicationLayer {
         throw new InvalidParameterException();
     }
     
+    public String getTeamName() {
+        return teamName;
+    }
+
+    public int getTeamNumber() {
+        return teamNumber;
+    }
 
 
 }

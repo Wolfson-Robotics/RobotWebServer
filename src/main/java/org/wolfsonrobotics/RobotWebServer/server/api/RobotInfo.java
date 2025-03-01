@@ -38,6 +38,10 @@ public class RobotInfo extends RobotAPI {
             switch (requestGET) {
                 case "all_methods":
                     return getAllMethods().toString();
+                case "team_name":
+                    return comLayer.getTeamName();
+                case "team_number":
+                    return Integer.toString(comLayer.getTeamNumber());
             }
         }
 
