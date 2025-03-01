@@ -3,6 +3,7 @@
     <head>
         <title>FTC-{team number} Robot Web View</title>
         <script src="startWebsocket.js"></script>
+        <script src="camera_feed.js"></script>
     </head>
     <body>
         <h1>TEMP - Anything in {} needs to be replaced with a procedural value</h1>
@@ -17,6 +18,6 @@
         <h2>Observatory</h2>
         <p>View camera feed</p>
         <!-- TODO: Resize this to actually look good -->
-        <iframe src="robot/camera_feed/index.html"></iframe>
+        <img id="cameraimg" style="width: 50vh">
     </body>
 </html>

@@ -1,18 +1,10 @@
 package org.wolfsonrobotics.RobotWebServer.server;
 
-import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoWSD;
-import org.json.JSONObject;
-import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
-import org.wolfsonrobotics.RobotWebServer.server.api.AllMethods;
-import org.wolfsonrobotics.RobotWebServer.server.api.CallMethod;
-import org.wolfsonrobotics.RobotWebServer.server.api.RobotAPI;
-import org.wolfsonrobotics.RobotWebServer.server.api.exception.APIException;
-import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException;
-import org.wolfsonrobotics.RobotWebServer.server.api.exception.MalformedRequestException;
-import org.wolfsonrobotics.RobotWebServer.server.api.exception.RobotException;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -20,6 +12,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+
+import org.json.JSONObject;
+import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
+import org.wolfsonrobotics.RobotWebServer.server.api.AllMethods;
+import org.wolfsonrobotics.RobotWebServer.server.api.CallMethod;
+import org.wolfsonrobotics.RobotWebServer.server.api.RobotAPI;
+import org.wolfsonrobotics.RobotWebServer.server.api.Webcam;
+import org.wolfsonrobotics.RobotWebServer.server.api.exception.APIException;
+import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException;
+import org.wolfsonrobotics.RobotWebServer.server.api.exception.MalformedRequestException;
+import org.wolfsonrobotics.RobotWebServer.server.api.exception.RobotException;
+
+import fi.iki.elonen.NanoHTTPD;
+import fi.iki.elonen.NanoWSD;
 
 public class RobotWebServer extends NanoHTTPD {
 
@@ -42,6 +48,7 @@ public class RobotWebServer extends NanoHTTPD {
         // Construct map since Map.ofEntries is not supported in Java 8
         this.urlHandlerMap.put("/robot/all_methods", AllMethods.class);
         this.urlHandlerMap.put("/robot/call_method", CallMethod.class);
+        this.urlHandlerMap.put("/robot/camera_feed", Webcam.class);
 
 
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);

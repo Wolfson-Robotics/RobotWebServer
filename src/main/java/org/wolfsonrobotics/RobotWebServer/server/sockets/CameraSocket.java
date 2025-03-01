@@ -1,14 +1,17 @@
 package org.wolfsonrobotics.RobotWebServer.server.sockets;
 
-import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoWSD;
-import nu.pattern.OpenCV;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.wolfsonrobotics.RobotWebServer.fakerobot.FakeRobot;
 
-import java.io.IOException;
+import fi.iki.elonen.NanoHTTPD;
+import fi.iki.elonen.NanoWSD;
+import nu.pattern.OpenCV;
 
 
 public class CameraSocket extends BaseSocket {
@@ -33,19 +36,20 @@ public class CameraSocket extends BaseSocket {
     protected void onMessage(NanoWSD.WebSocketFrame message) {
         super.onMessage(message);
 
-        // TODO: Probably move all this to its own class later
-        // TODO: Make it automatically update without need for future requests
-        // TODO: Harrison please fix this
         Mat cameraFeed = robot.getCameraFeed();
-        /* byte[] fullMatBytes = new byte[(int) (cameraFeed.total() * cameraFeed.elemSize())];
-        cameraFeed.get(0, 0, fullMatBytes); */
-        MatOfByte matOfByte = new MatOfByte();
-        Imgcodecs.imencode(".jpg", cameraFeed, matOfByte);
-        try {
-            send(matOfByte.toArray().toString());
-        } catch (IOException e) {
-            e.printStackTrace();
+        MatOfByte buffer = new MatOfByte();
+        boolean success = Imgcodecs.imencode(".jpg", cameraFeed, buffer);
+
+        if (success) {
+            send(buffer.toArray().clone());
+        } else {
+            try {
+                send("Failed to send webcam data");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+
     }
 
 
