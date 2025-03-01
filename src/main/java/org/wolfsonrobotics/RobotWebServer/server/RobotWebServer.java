@@ -16,9 +16,10 @@ import java.util.stream.Collectors;
 import org.json.JSONObject;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 import org.wolfsonrobotics.RobotWebServer.server.api.AllMethods;
+import org.wolfsonrobotics.RobotWebServer.server.api.BaseAPI;
 import org.wolfsonrobotics.RobotWebServer.server.api.CallMethod;
+import org.wolfsonrobotics.RobotWebServer.server.api.CameraFeed;
 import org.wolfsonrobotics.RobotWebServer.server.api.RobotAPI;
-import org.wolfsonrobotics.RobotWebServer.server.api.Webcam;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.APIException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.MalformedRequestException;
@@ -48,7 +49,7 @@ public class RobotWebServer extends NanoHTTPD {
         // Construct map since Map.ofEntries is not supported in Java 8
         this.urlHandlerMap.put("/robot/all_methods", AllMethods.class);
         this.urlHandlerMap.put("/robot/call_method", CallMethod.class);
-        this.urlHandlerMap.put("/robot/camera_feed", Webcam.class);
+        this.urlHandlerMap.put("/robot/camera_feed", CameraFeed.class);
 
 
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
@@ -183,20 +184,22 @@ public class RobotWebServer extends NanoHTTPD {
 
         AtomicReference<Response.Status> status = new AtomicReference<>(Response.Status.OK);
         StringWriter output = new StringWriter();
+        StringBuilder mimeType = new StringBuilder(MIME_PLAINTEXT);
 
         urlHandlerMap.forEach((url, handler) -> {
+            // TODO: make this stop checking if it get's the correct url
             if (!url.equalsIgnoreCase(session.getUri()) || output.getBuffer().length() > 0) {
                 return;
             }
 
             try {
-                output.append(handler.getConstructor(IHTTPSession.class, CommunicationLayer.class)
-                        .newInstance(session, this.comLayer)
-                        .handle()
-                );
-            } catch (InstantiationException | IllegalAccessException |
-                    InvocationTargetException | NoSuchMethodException |
-                     RobotException e) {
+                RobotAPI handle = handler.getConstructor(IHTTPSession.class, CommunicationLayer.class).newInstance(session, this.comLayer);
+                output.append(handle.handle());
+                mimeType.setLength(0);
+                mimeType.append(handle.mimeType);
+                
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException
+                    | RobotException e) {
 
                 output.append(e.getMessage());
                 status.set(Response.Status.INTERNAL_ERROR);
@@ -219,7 +222,7 @@ public class RobotWebServer extends NanoHTTPD {
             output.append("404 Not Found");
             status.set(Response.Status.NOT_FOUND);
         }
-        return newFixedLengthResponse(status.get(), MIME_PLAINTEXT, output.toString());
+        return newFixedLengthResponse(status.get(), mimeType.toString(), output.toString());
 
     }
 

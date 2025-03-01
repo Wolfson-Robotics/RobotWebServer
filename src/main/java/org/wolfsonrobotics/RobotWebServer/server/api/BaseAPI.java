@@ -15,6 +15,7 @@ public abstract class BaseAPI {
     protected final IHTTPSession session;
     // Instance variables
     protected JSONObject body;
+    public String mimeType = "plain/text";
 
 
     protected BaseAPI(IHTTPSession session) {
