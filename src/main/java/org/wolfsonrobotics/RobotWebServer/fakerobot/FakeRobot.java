@@ -3,8 +3,9 @@ package org.wolfsonrobotics.RobotWebServer.fakerobot;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.wolfsonrobotics.RobotWebServer.server.DashboardRobot;
 
-public class FakeRobot {
+public class FakeRobot implements DashboardRobot {
 
     public int rot = 0; //degrees
     public int locationX = 0;
@@ -61,6 +62,16 @@ public class FakeRobot {
         curFrame += 20;
 
         return cameraFeed;
+    }
+
+    @Override
+    public String getTeamName() {
+        return "Real Name";
+    }
+
+    @Override
+    public int getTeamNumber() {
+        return 12345;
     }
 
 }

@@ -1,27 +1,77 @@
 package org.wolfsonrobotics.RobotWebServer.server.api;
 
 import fi.iki.elonen.NanoHTTPD;
+import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
+import org.wolfsonrobotics.RobotWebServer.server.RobotWebServer;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.MalformedRequestException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.RobotException;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-
-public class CallMethod extends RobotAPI {
-
-    public CallMethod(NanoHTTPD.IHTTPSession session, CommunicationLayer comLayer) {
+public class RobotInfo extends RobotAPI {
+    
+    public RobotInfo(IHTTPSession session, CommunicationLayer comLayer) {
         super(session, comLayer);
+        this.responseType = "application/json";
     }
 
     @Override
     public String handle() throws BadInputException, MalformedRequestException, RobotException {
+        TreeMap<String, ArrayList<String>> query = RobotWebServer.parseQueryParameters(session);
 
+        if (query == null) { return null; }
+
+        if (query.get("get") != null) {
+            String requestGET = query.get("get").get(0);
+            switch (requestGET) {
+                case "all_methods":
+                    return getAllMethods().toString();
+                case "team_name":
+                    return new JSONObject().put("team_name", comLayer.getTeamName()).toString();
+                case "team_number":
+                    return new JSONObject().put("team_number", comLayer.getTeamNumber()).toString();
+            }
+        }
+
+        if (query.get("post") != null) {
+            String requestPOST = query.get("post").get(0);
+            switch (requestPOST) {
+                case "call_method":
+                    return callMethod().toString();
+            }
+        }
+        
+        return null;
+    }
+
+        
+
+    private JSONObject getAllMethods() {
+        JSONObject res = new JSONObject();
+        Arrays.stream(comLayer.getCallableMethods()).forEach(m -> {
+            List<Class<?>> params = Arrays.stream(m.getParameters())
+                    .map(Parameter::getType)
+                    .collect(Collectors.toList());
+
+            JSONArray methodArgsList = res.optJSONArray(m.getName(), new JSONArray());
+            methodArgsList.put(params);
+            res.put(m.getName(), methodArgsList);
+        });
+        return res;
+    }
+
+    private JSONObject callMethod() throws BadInputException, MalformedRequestException, RobotException {
         if (!session.getMethod().equals(NanoHTTPD.Method.POST)) {
             throw new MalformedRequestException("Only acceptable method is POST");
         }
@@ -40,7 +90,6 @@ public class CallMethod extends RobotAPI {
             throw new BadInputException("The method arguments must be of type array");
         }
 
-
         JSONArray args = body.getJSONArray("args");
         List<Object> argTypes = IntStream.range(0, args.length())
                 .mapToObj(args::get)
@@ -56,6 +105,10 @@ public class CallMethod extends RobotAPI {
             throw new RobotException(e);
         }
 
-        return "{\"message\":\"Success\"}";
+        JSONObject json = new JSONObject();
+        json.append("message", "success");
+
+        return json;
     }
+
 }

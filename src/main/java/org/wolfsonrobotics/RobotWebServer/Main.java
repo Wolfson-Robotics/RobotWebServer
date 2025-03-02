@@ -1,5 +1,6 @@
 package org.wolfsonrobotics.RobotWebServer;
 
+import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 import org.wolfsonrobotics.RobotWebServer.fakerobot.FakeRobot;
 import org.wolfsonrobotics.RobotWebServer.server.RobotWebServer;
 
@@ -10,11 +11,13 @@ public class Main {
     Thread server;
 
     public static void main(String[] args) {
-        try {
-            RobotWebServer ws = new RobotWebServer(8080, "website/", new FakeRobot());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        WebDashboard wd = new WebDashboard(
+            "Wolfson Robotics", 
+            19916, 
+            8080, 
+            "website/", 
+            new FakeRobot());
+        wd.start();
     }
 
 }

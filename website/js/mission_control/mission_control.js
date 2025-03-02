@@ -17,7 +17,7 @@
         document.head.appendChild(script);
     }
 
-    const amREQ = await fetch(window.location.protocol + "/robot/all_methods");
+    const amREQ = await fetch(window.location.protocol + "/robot?get=all_methods");
     const amRES = await amREQ.json();
     if (amRES.error) {
         alert("An error occurred fetching the robot methods. Details:\n" + amRES.error);
