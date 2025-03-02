@@ -1,19 +1,18 @@
 package org.wolfsonrobotics.RobotWebServer.communication;
 
+import org.wolfsonrobotics.RobotWebServer.fakerobot.FakeRobot;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.wolfsonrobotics.RobotWebServer.server.DashboardRobot;
-
 public class CommunicationLayer {
     
-    private final DashboardRobot instance;
+    private final FakeRobot instance;
 
-    public CommunicationLayer(DashboardRobot instance) {
+    public CommunicationLayer(FakeRobot instance) {
         this.instance = instance;
     }
 
@@ -56,24 +55,6 @@ public class CommunicationLayer {
     public Method[] getCallableMethods() {
         Method[] methods = instance.getClass().getDeclaredMethods();
         return Arrays.stream(methods).filter(m -> Modifier.isPublic(m.getModifiers()) || Modifier.isProtected(m.getModifiers())).toArray(Method[]::new);
-    }
-
-    public Method getInstanceMethod(String methodName) throws InvalidParameterException {
-        Method[] methods = instance.getClass().getDeclaredMethods();
-        
-        for (Method method : methods) {
-            if (method.toString().contains(methodName)) { return method; }
-        }
-
-        throw new InvalidParameterException();
-    }
-    
-    public String getTeamName() {
-        return instance.getTeamName();
-    }
-
-    public int getTeamNumber() {
-        return instance.getTeamNumber();
     }
 
 
