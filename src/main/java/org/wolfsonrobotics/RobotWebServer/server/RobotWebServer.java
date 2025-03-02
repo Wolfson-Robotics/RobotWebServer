@@ -1,22 +1,10 @@
 package org.wolfsonrobotics.RobotWebServer.server;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
-
+import fi.iki.elonen.NanoHTTPD;
+import fi.iki.elonen.NanoWSD;
 import org.json.JSONObject;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 import org.wolfsonrobotics.RobotWebServer.server.api.AllMethods;
-import org.wolfsonrobotics.RobotWebServer.server.api.BaseAPI;
 import org.wolfsonrobotics.RobotWebServer.server.api.CallMethod;
 import org.wolfsonrobotics.RobotWebServer.server.api.CameraFeed;
 import org.wolfsonrobotics.RobotWebServer.server.api.RobotAPI;
@@ -25,8 +13,14 @@ import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.MalformedRequestException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.RobotException;
 
-import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoWSD;
+import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class RobotWebServer extends NanoHTTPD {
 
@@ -83,7 +77,7 @@ public class RobotWebServer extends NanoHTTPD {
 
             // The rest of these will only be implemented when the project will need them
             default:
-                return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, method.toString() + " not implemented");
+                return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, method + " not implemented");
         }
 
     }
@@ -196,7 +190,7 @@ public class RobotWebServer extends NanoHTTPD {
                 RobotAPI handle = handler.getConstructor(IHTTPSession.class, CommunicationLayer.class).newInstance(session, this.comLayer);
                 output.append(handle.handle());
                 mimeType.setLength(0);
-                mimeType.append(handle.mimeType);
+                mimeType.append(handle.responseType);
                 
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException
                     | RobotException e) {

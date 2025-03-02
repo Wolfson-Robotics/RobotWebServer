@@ -34,6 +34,11 @@ public class FakeRobot {
         armPosY = 0.6;
     }
 
+    // For testing with the code editor
+    public void stringTest(String test) {
+        System.out.println(test);
+    }
+
 
     // String of pixels separated by commas whose elements themselves are
     // separated by dashes for rgb vals

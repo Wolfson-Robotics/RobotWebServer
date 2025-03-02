@@ -15,7 +15,7 @@ public abstract class BaseAPI {
     protected final IHTTPSession session;
     // Instance variables
     protected JSONObject body;
-    public String mimeType = "plain/text";
+    public String responseType = "text/plain; charset=utf-8";
 
 
     protected BaseAPI(IHTTPSession session) {
