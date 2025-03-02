@@ -8,16 +8,22 @@ import java.io.IOException;
 
 public class Main {
 
-    Thread server;
-
     public static void main(String[] args) {
-        WebDashboard wd = new WebDashboard(
-            "Wolfson Robotics", 
-            19916, 
-            8080, 
-            "website/", 
-            new FakeRobot());
-        wd.start();
+
+        RobotWebServer ws = new RobotWebServer(
+                8080,
+                "website/",
+                new CommunicationLayer(new FakeRobot()));
+        try {
+            ws.start();
+        } catch (IOException e) {
+            ws.stop();
+            if (ws.isAlive()) {
+                System.out.println("Failed to close webserver after start failure");
+            }
+            throw new RuntimeException(e);
+        }
+
     }
 
 }

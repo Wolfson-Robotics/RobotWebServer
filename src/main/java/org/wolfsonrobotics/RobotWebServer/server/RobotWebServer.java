@@ -4,9 +4,10 @@ import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
 import org.json.JSONObject;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
+import org.wolfsonrobotics.RobotWebServer.server.api.AllMethods;
+import org.wolfsonrobotics.RobotWebServer.server.api.CallMethod;
 import org.wolfsonrobotics.RobotWebServer.server.api.CameraFeed;
 import org.wolfsonrobotics.RobotWebServer.server.api.RobotAPI;
-import org.wolfsonrobotics.RobotWebServer.server.api.RobotInfo;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.APIException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.MalformedRequestException;
@@ -15,7 +16,9 @@ import org.wolfsonrobotics.RobotWebServer.server.api.exception.RobotException;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -24,23 +27,29 @@ public class RobotWebServer extends NanoHTTPD {
     private final String webroot;
     private final int port;
 
-    private final NanoWSD webSocket;
+    private NanoWSD webSocket;
     private final CommunicationLayer comLayer;
 
 
     private final Map<String, Class<? extends RobotAPI>> urlHandlerMap = new HashMap<>();
 
 
-    public RobotWebServer(int port, String webroot, CommunicationLayer comLayer) throws IOException {
+    public RobotWebServer(int port, String webroot, CommunicationLayer comLayer) {
         super(port);
         this.port = port;
         this.webroot = webroot;
         this.comLayer = comLayer;
 
         // Construct map since Map.ofEntries is not supported in Java 8
-        this.urlHandlerMap.put("/robot", RobotInfo.class);
-        this.urlHandlerMap.put("/camera_feed", CameraFeed.class);
+        this.urlHandlerMap.put("/robot/all_methods", AllMethods.class);
+        this.urlHandlerMap.put("/robot/call_method", CallMethod.class);
+        this.urlHandlerMap.put("/robot/camera_feed", CameraFeed.class);
 
+    }
+
+
+
+    public void start() throws IOException {
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
         System.out.println("Web Server running at: http://localhost:" + this.port);
 
@@ -52,8 +61,9 @@ public class RobotWebServer extends NanoHTTPD {
             e.printStackTrace();
         }
         System.out.println("Websocket started");
-
     }
+
+
 
 
     @Override
@@ -251,25 +261,5 @@ public class RobotWebServer extends NanoHTTPD {
 
     }
 
-    /*All static methods go below here */
-
-    //Returns query parameters as a TreeMap
-    public static TreeMap<String, ArrayList<String>> parseQueryParameters(IHTTPSession session) {
-        TreeMap<String, ArrayList<String>> map = new TreeMap<>();
-        String query = session.getQueryParameterString();
-        if (query == null) { return null; }
-
-        String[] parameters = query.split("&");
-
-        for (String parameter : parameters) {
-            String[] arrParameter = parameter.split("=");
-            ArrayList<String> parameterValues = map.get(arrParameter[0]);
-            parameterValues = (parameterValues == null) ? new ArrayList<String>() : parameterValues;
-            parameterValues.add(arrParameter[1]);
-            map.put(arrParameter[0], parameterValues);
-        }
-
-        return map;
-    }
 
 }
