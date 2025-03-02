@@ -42,18 +42,25 @@ function submit(event, methodName, form) {
     });
 }
 
-function dataTypetoInputType(dataType) {
+function dataTypeToInputType(dataType) {
+    var domInput = document.createElement("input");
+    domInput.required = true;
     switch (dataType) {
         case "double":
+            domInput.type = "number";
+            domInput.step = "0.01";
+            break;
         case "int":
-            return "number";
+            domInput.type = "number";
+            break;
         case "boolean":
-            return "checkbox";
-        case "String":
-            return "text";
+            domInput.type = "checkbox";
+            break;
         default:
-            return "text";
+            domInput.type = "text";
+            break;
     }
+    return domInput;
 }
 
 
@@ -72,9 +79,7 @@ Object.entries(window.robotMethods).forEach(([methodName, args]) => {
     // TODO: Implement methods with no arguments and method overloads
     if (args.length !== 0) {
         args[0].forEach(input => {
-            const domInput = document.createElement("input");
-            domInput.type = dataTypetoInputType(input);
-            domInput.required = true;
+            const domInput = dataTypeToInputType(input);
             domForm.appendChild(domInput);
         });
     }

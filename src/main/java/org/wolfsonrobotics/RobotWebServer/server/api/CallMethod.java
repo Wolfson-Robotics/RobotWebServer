@@ -1,6 +1,11 @@
 package org.wolfsonrobotics.RobotWebServer.server.api;
 
-import fi.iki.elonen.NanoHTTPD;
+import java.lang.reflect.InvocationTargetException;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
@@ -8,10 +13,7 @@ import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.MalformedRequestException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.RobotException;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import fi.iki.elonen.NanoHTTPD;
 
 
 public class CallMethod extends RobotAPI {
@@ -46,6 +48,15 @@ public class CallMethod extends RobotAPI {
         List<Object> argTypes = IntStream.range(0, args.length())
                 .mapToObj(args::get)
                 .collect(Collectors.toList());
+        // temp for now manually switch bigdecimal to double
+        // TODO: just make the above function not get BigDecimal at all
+        for (int i = 0; i < argTypes.size(); i++) {
+            if (argTypes.get(i).getClass().equals(BigDecimal.class)) {
+                double converted = ((BigDecimal) (argTypes.get(i))).doubleValue();
+                argTypes.set(i, converted);
+            }
+
+        }
 
         try {
             this.comLayer.call(body.getString("name"), argTypes);
