@@ -76,6 +76,7 @@
                 finalArgs[rIndex] = {"char": arg.replaceAll("'", "")};
                 return;
             }
+            // TODO: Fix String to class java.lang.String reflection output
             if (rArg.startsWith("\"") && rArg.endsWith("\"")) {
                 finalArgs[rIndex] = {"String": arg.replaceAll("\"", "")};
                 return;
@@ -179,7 +180,7 @@ CodeMirror.registerHelper("lint", "text/x-java", (text) => {
             found.push({
                 from: CodeMirror.Pos(i, line.length),
                 to: CodeMirror.Pos(i, line.length),
-                message: "Unknown method.",
+                message: `Unknown method ${methodName}.`,
                 severity: "error"
             });
             return;
@@ -306,8 +307,8 @@ CodeMirror.registerHelper("lint", "text/x-java", (text) => {
         // have been set to true by argument parsing fails in the last iteration
         if (typingFail) {
             found.push({
-                from: CodeMirror.Pos(0, 0),
-                to: CodeMirror.Pos(0, 0),
+                from: CodeMirror.Pos(i, line.length),
+                to: CodeMirror.Pos(i, line.length),
                 message: `Method ${methodName} cannot be called with input types ${methodCallArgTypes.join(", ")}.`,
                 severity: "error"
             });
