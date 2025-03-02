@@ -30,7 +30,7 @@ public class RobotInfo extends RobotAPI {
     public String handle() throws BadInputException, MalformedRequestException, RobotException {
         TreeMap<String, ArrayList<String>> query = RobotWebServer.parseQueryParameters(session);
 
-        if (query == null) { return null; }
+        if (query == null || query.size() == 0) { return null; }
 
         if (query.get("get") != null) {
             String requestGET = query.get("get").get(0);

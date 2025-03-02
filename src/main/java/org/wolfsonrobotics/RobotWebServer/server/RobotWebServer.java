@@ -59,6 +59,8 @@ public class RobotWebServer extends NanoHTTPD {
     @Override
     public Response serve(IHTTPSession session) {
 
+        System.out.println(session.getUri());
+
         if (session.getUri().equalsIgnoreCase("/req_testing")) {
             return testing(session);
         }

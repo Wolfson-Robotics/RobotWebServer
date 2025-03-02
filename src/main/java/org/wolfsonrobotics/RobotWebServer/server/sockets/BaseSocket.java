@@ -30,7 +30,7 @@ public abstract class BaseSocket extends WebSocket {
     @Override
     protected void onMessage(NanoWSD.WebSocketFrame message) {
         message.setUnmasked();
-        System.out.println("Received message: " + message.getTextPayload());
+        //System.out.println("Received message: " + message.getTextPayload());
     }
 
     @Override

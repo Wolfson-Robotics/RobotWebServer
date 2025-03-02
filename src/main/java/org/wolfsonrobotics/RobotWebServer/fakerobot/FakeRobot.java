@@ -7,7 +7,7 @@ import org.wolfsonrobotics.RobotWebServer.server.DashboardRobot;
 
 public class FakeRobot implements DashboardRobot {
 
-    public int rot = 0; //degrees
+    public double rot = 0; //degrees
     public int locationX = 0;
     public int locationY = 0;
     public double armPosY = 0.3;
