@@ -1,21 +1,26 @@
 package org.wolfsonrobotics.RobotWebServer.communication;
 
-import org.wolfsonrobotics.RobotWebServer.fakerobot.FakeRobot;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 
+import org.wolfsonrobotics.RobotWebServer.fakerobot.FakeRobot;
+
 public class CommunicationLayer {
     
     private final FakeRobot instance;
+    private Method[] methods;
 
     public CommunicationLayer(FakeRobot instance) {
         this.instance = instance;
     }
 
+    public CommunicationLayer(FakeRobot instance, Method[] methods) {
+        this(instance);
+        this.methods = methods; //TODO: add the ability exclude methods as well
+    }
 
     public void call(String inputName, Object... args) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         Method method = instance.getClass().getMethod(inputName,
@@ -51,8 +56,10 @@ public class CommunicationLayer {
         call(inputName, args.toArray());
     }
 
-    
     public Method[] getCallableMethods() {
+        if (methods != null) { //returns specified methods instead
+            return methods;
+        }
         Method[] methods = instance.getClass().getDeclaredMethods();
         return Arrays.stream(methods).filter(m -> Modifier.isPublic(m.getModifiers()) || Modifier.isProtected(m.getModifiers())).toArray(Method[]::new);
     }
