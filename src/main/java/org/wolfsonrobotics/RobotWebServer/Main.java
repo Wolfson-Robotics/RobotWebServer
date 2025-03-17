@@ -12,26 +12,21 @@ public class Main {
 
     public static void main(String[] args) {
 
-        ArrayList<Method> selectedMethods = new ArrayList<>();
+        ArrayList<Method> excludedMethods = new ArrayList<>();
         try {
-            selectedMethods.add(FakeRobot.class.getDeclaredMethod("moveBot", int.class, int.class));
-            selectedMethods.add(FakeRobot.class.getDeclaredMethod("turnBot", double.class));
-            selectedMethods.add(FakeRobot.class.getDeclaredMethod("moveArm", double.class));
-            selectedMethods.add(FakeRobot.class.getDeclaredMethod("downArm"));
-            selectedMethods.add(FakeRobot.class.getDeclaredMethod("upArm"));
-            selectedMethods.add(FakeRobot.class.getDeclaredMethod("stringTest", String.class));
+            excludedMethods.add(FakeRobot.class.getDeclaredMethod("getCameraFeed"));
         } catch (NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
             return;
         }
 
-        Method[] methods = new Method[selectedMethods.size()];
-        methods = selectedMethods.toArray(methods);
+        Method[] methods = new Method[excludedMethods.size()];
+        methods = excludedMethods.toArray(methods);
 
         RobotWebServer ws = new RobotWebServer(
                 8080,
                 "website/",
-                new CommunicationLayer(new FakeRobot(), methods));
+                new CommunicationLayer(new FakeRobot(), null, methods));
         try {
             ws.start();
         } catch (IOException e) {

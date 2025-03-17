@@ -4,7 +4,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.wolfsonrobotics.RobotWebServer.fakerobot.FakeRobot;
 
@@ -12,14 +15,16 @@ public class CommunicationLayer {
     
     private final FakeRobot instance;
     private Method[] methods;
+    private Method[] exlucdedMethods;
 
     public CommunicationLayer(FakeRobot instance) {
         this.instance = instance;
     }
 
-    public CommunicationLayer(FakeRobot instance, Method[] methods) {
+    public CommunicationLayer(FakeRobot instance, Method[] methods, Method[] excludedMethods) {
         this(instance);
-        this.methods = methods; //TODO: add the ability exclude methods as well
+        this.methods = methods; 
+        this.exlucdedMethods = excludedMethods;
     }
 
     public void call(String inputName, Object... args) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
@@ -57,11 +62,24 @@ public class CommunicationLayer {
     }
 
     public Method[] getCallableMethods() {
-        if (methods != null) { //returns specified methods instead
+        Method[] methods = this.methods;
+
+        if (methods == null) { //gets all declared methods
+            methods = instance.getClass().getDeclaredMethods();
+            methods = Arrays.stream(methods).filter(m -> Modifier.isPublic(m.getModifiers()) || Modifier.isProtected(m.getModifiers())).toArray(Method[]::new);
+        }
+        
+        if (exlucdedMethods == null) {
             return methods;
         }
-        Method[] methods = instance.getClass().getDeclaredMethods();
-        return Arrays.stream(methods).filter(m -> Modifier.isPublic(m.getModifiers()) || Modifier.isProtected(m.getModifiers())).toArray(Method[]::new);
+        //exclude methods
+        Set<Method> excludedMethodSet = new HashSet<>(Arrays.asList(exlucdedMethods));
+        List<Method> finalMethods = Arrays.stream(methods)
+                .filter(method -> !excludedMethodSet.contains(method))
+                .filter(method -> method != null)
+                .collect(Collectors.toList());
+
+        return finalMethods.toArray(new Method[finalMethods.size()]);
     }
 
 
