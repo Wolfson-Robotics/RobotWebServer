@@ -12,16 +12,12 @@ public class Main {
 
     public static void main(String[] args) {
 
-        ArrayList<Method> excludedMethods = new ArrayList<>();
+        Method[] methods = null;
         try {
-            excludedMethods.add(FakeRobot.class.getDeclaredMethod("getCameraFeed"));
+            methods = new Method[]{ FakeRobot.class.getDeclaredMethod("getCameraFeed") };
         } catch (NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
-            return;
         }
-
-        Method[] methods = new Method[excludedMethods.size()];
-        methods = excludedMethods.toArray(methods);
 
         RobotWebServer ws = new RobotWebServer(
                 8080,
