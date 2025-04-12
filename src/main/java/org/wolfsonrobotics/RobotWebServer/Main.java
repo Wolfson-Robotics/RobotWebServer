@@ -1,28 +1,20 @@
 package org.wolfsonrobotics.RobotWebServer;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 import org.wolfsonrobotics.RobotWebServer.fakerobot.FakeRobot;
 import org.wolfsonrobotics.RobotWebServer.server.RobotWebServer;
+
+import java.io.IOException;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        Method[] methods = null;
-        try {
-            methods = new Method[]{ FakeRobot.class.getDeclaredMethod("getCameraFeed") };
-        } catch (NoSuchMethodException | SecurityException e) {
-            e.printStackTrace();
-        }
-
+        String[] excludedMethods = { "getCameraFeed" };
         RobotWebServer ws = new RobotWebServer(
                 8080,
                 "website/",
-                new CommunicationLayer(new FakeRobot(), null, methods));
+                new CommunicationLayer(new FakeRobot(), null, excludedMethods));
         try {
             ws.start();
         } catch (IOException e) {
