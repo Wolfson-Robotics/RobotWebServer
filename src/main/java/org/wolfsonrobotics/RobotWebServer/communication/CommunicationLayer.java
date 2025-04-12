@@ -28,6 +28,7 @@ public class CommunicationLayer {
 
 
     private static Method stringToMethod(FakeRobot instance, String methodName) {
+        if (methodName == null) return null;
         try {
             return instance.getClass().getDeclaredMethod(methodName);
         } catch (NoSuchMethodException e) {
@@ -35,6 +36,7 @@ public class CommunicationLayer {
         }
     }
     private static Method[] stringToMethod(FakeRobot instance, String[] methodNames) {
+        if (methodNames == null) return null;
         return Arrays.stream(methodNames)
                 .map(m -> CommunicationLayer.stringToMethod(instance, m))
                 .filter(Objects::nonNull)
