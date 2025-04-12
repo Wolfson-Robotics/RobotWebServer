@@ -1,11 +1,6 @@
 package org.wolfsonrobotics.RobotWebServer.server.api;
 
-import java.lang.reflect.InvocationTargetException;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
+import fi.iki.elonen.NanoHTTPD;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
@@ -13,7 +8,11 @@ import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.MalformedRequestException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.RobotException;
 
-import fi.iki.elonen.NanoHTTPD;
+import java.lang.reflect.InvocationTargetException;
+import java.util.AbstractMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 public class CallMethod extends RobotAPI {
@@ -45,21 +44,29 @@ public class CallMethod extends RobotAPI {
 
 
         JSONArray args = body.getJSONArray("args");
-        List<Object> argTypes = IntStream.range(0, args.length())
-                .mapToObj(args::get)
-                .collect(Collectors.toList());
+        Map<String, Object> argMap = IntStream.range(0, args.length())
+                .mapToObj(args::getJSONObject)
+                .map(obj -> {
+                    String type = obj.keys().next();
+                    return new AbstractMap.SimpleEntry<>(type, obj.get(type));
+                }).collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue
+                ));
+
         // temp for now manually switch bigdecimal to double
-        // TODO: just make the above function not get BigDecimal at all
+        // TOD: just make the above function not get BigDecimal at all
+        /*
         for (int i = 0; i < argTypes.size(); i++) {
             if (argTypes.get(i).getClass().equals(BigDecimal.class)) {
                 double converted = ((BigDecimal) (argTypes.get(i))).doubleValue();
                 argTypes.set(i, converted);
             }
 
-        }
+        }*/
 
         try {
-            this.comLayer.call(body.getString("name"), argTypes);
+            this.comLayer.callMethod(body.getString("name"), argMap);
         } catch (IllegalAccessException e) {
             throw new BadInputException("The method with the specified arguments is not allowed to be called");
         } catch (NoSuchMethodException e) {

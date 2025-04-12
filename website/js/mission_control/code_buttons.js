@@ -1,95 +1,93 @@
-function submit(event, methodName, form) {
-    event.preventDefault();
+export function run(missionLib) {
 
-    const json = {};
-    json.name = methodName;
+    function submit(event, methodName, form) {
+        event.preventDefault();
 
-    const formData = new FormData(form);
-    /*
-    formData.forEach((value, key) => {
-        args.push(value);
-    });*/
-    // formData.forEach(args.push);
+        const typedArgs = missionLib.typeArgs(Array.from(form.elements)
+            .filter(i => i.type !== "submit")
+            .map(input => {
 
-    json["args"] = [];
-    Array.from(form.elements).forEach(input => {
+                switch (input.type) {
+                    case "checkbox":
+                        return input.checked ? "true" : "false";
+                    default:
+                        return input.wrapper + input.value + input.wrapper;
+                }
 
-        switch (input.type) {
-            case "submit":
-                return;
-            case "double":
-            case "number":
-                json["args"].push(Number(input.value));
-                return;
-            case "checkbox":
-                json["args"].push(input.checked);
-                return;
-            default:
-                json["args"].push(input.value);
-                return;
-        }
-
-    });
-
-    console.log(JSON.stringify(json));
-
-    fetch(window.location.protocol + '/robot/call_method', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(json),
-    });
-}
-
-function dataTypeToInputType(dataType) {
-    var domInput = document.createElement("input");
-    domInput.required = true;
-    switch (dataType) {
-        case "double":
-            domInput.type = "number";
-            domInput.step = "0.01";
-            break;
-        case "int":
-            domInput.type = "number";
-            break;
-        case "boolean":
-            domInput.type = "checkbox";
-            break;
-        default:
-            domInput.type = "text";
-            break;
-    }
-    return domInput;
-}
+            })
+        );
+        const methodTyped = missionLib.locateMethod(window.robotMethods[methodName], typedArgs);
 
 
-console.log("Processing inputs...");
+        const callPayload = {
+            name: methodName,
+            args: typedArgs.keyMap((k, i) => methodTyped[i])
+        };
+        console.log(callPayload);
 
-const domInputs = document.getElementById("inputs");
-Object.entries(window.robotMethods).forEach(([methodName, args]) => {
-
-    const domForm = document.createElement("form");
-    domForm.id = methodName;
-    domForm.addEventListener('submit', (event) => {
-        submit(event, methodName, domForm);
-    });
-    // domForm.onsubmit="submit(event)";
-
-    // TODO: Implement methods with no arguments and method overloads
-    if (args.length !== 0) {
-        args[0].forEach(input => {
-            const domInput = dataTypeToInputType(input);
-            domForm.appendChild(domInput);
+        window.callAPI("call_method", callPayload).catch(err => {
+            window.alert("An error occurred when calling method");
+            console.log(err);
         });
     }
 
+    function dataTypeToInputType(dataType) {
+        const domInput = document.createElement("input");
+        domInput.required = true;
+        domInput.wrapper =  "";
+        switch (dataType) {
+            case "float":
+            case "double":
+                domInput.type = "number";
+                domInput.step = "any";
+                break;
+            case "int":
+            case "long":
+            case "short":
+                domInput.type = "number";
+                break;
+            case "boolean":
+                domInput.type = "checkbox";
+                break;
+            case "char":
+                domInput.type = "text";
+                domInput.wrapper = "'";
+                domInput.addEventListener("input", e => {
+                    if (domInput.length >= 1) e.preventDefault();
+                });
+                break;
+            case "String":
+                domInput.type = "text";
+                domInput.wrapper = '"';
+                break;
+            default:
+                domInput.type = "text";
+                break;
+        }
+        return domInput;
+    }
 
-    const domButton = document.createElement("input");
-    domButton.type = "submit";
-    domButton.value = methodName;
-    domForm.appendChild(domButton);
 
-    domInputs.appendChild(domForm);
+    console.log("Processing inputs...");
 
-});
+    const domInputs = document.getElementById("inputs");
+    Object.entries(window.robotMethods).forEach(([methodName, args]) => {
+
+        const domForm = document.createElement("form");
+        domForm.id = methodName;
+        domForm.addEventListener("submit", e => submit(e, methodName, domForm));
+
+        if (args.length !== 0) {
+            args[0].forEach(input => domForm.appendChild(dataTypeToInputType(input)));
+        }
+
+        const domButton = document.createElement("input");
+        domButton.type = "submit";
+        domButton.value = methodName;
+        domForm.appendChild(domButton);
+
+        domInputs.appendChild(domForm);
+
+    });
+
+}
