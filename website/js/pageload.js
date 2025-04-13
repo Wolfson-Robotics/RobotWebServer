@@ -61,3 +61,12 @@ Array.prototype.removeElem = function(elem) {
     }
     this.remove(index);
 };
+
+
+window.toLines = (text) => {
+    return text.replaceAll("\r", "").split("\n");
+}
+// General element helper methods
+HTMLElement.prototype.hide = function() { this.style.display = "none"; };
+HTMLElement.prototype.show = function() { this.style.display = "block"; };
+

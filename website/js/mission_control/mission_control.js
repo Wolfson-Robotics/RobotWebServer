@@ -141,7 +141,6 @@
                 return;
             }
             if (supportedArgs.length !== typedCallArgs.length) {
-                typedArgs = null;
                 return;
             }
             let typedArgs = [];
@@ -248,9 +247,11 @@
         return isNaN(num) ? NaN : num;
     }
 
+    missionControlLib.callMethod = callPayload => window.callAPI("call_method", callPayload);
 
-    const scriptsToLoad = ["code_editor.js", "code_buttons.js"].map(script => "/js/mission_control/" + script);
-    scriptsToLoad.forEach(script => import(script).then(module => module.run(missionControlLib)));
+
+    const scriptsToLoad = ["code_editor.js", "code_buttons.js"];
+    scriptsToLoad.forEach(script => import("/js/mission_control/" + script).then(module => module.run(missionControlLib)));
     // loadScriptAsync("/js/mission_control/code_editor.js");
     // loadScriptAsync("/js/mission_control/code_buttons.js");
 

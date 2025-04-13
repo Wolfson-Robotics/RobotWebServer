@@ -39,6 +39,10 @@ public class FakeRobot {
         System.out.println(test);
     }
 
+    public void sleep(long ms) {
+        try { Thread.sleep(ms); } catch (Exception ignored) {}
+    }
+
 
     // String of pixels separated by commas whose elements themselves are
     // separated by dashes for rgb vals

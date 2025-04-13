@@ -1,0 +1,7 @@
+#editor-actions {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 0.3rem;
+    align-items: center;
+}

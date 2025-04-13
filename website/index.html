@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <title>FTC-{team number} Robot Web View</title>
 
+        <link rel="stylesheet" href="index.css">
         <link rel="stylesheet" href="/libs/codemirror/codemirror.min.css">
         <link rel="stylesheet" href="/libs/codemirror/addon/lint/lint.css">
 
@@ -20,23 +21,39 @@
     <body>
         <h1 id="page-title">FTC-{team number} Robot Web Dashboard</h1>
         <hr>
+
         <h2>Mission Control</h2>
         <p>Anything that can be changed or operated goes here (i.e. movement, rotation, etc)</p>
         <hr>
+
         <div id="inputs">
-            <!--JavaScript Generated Inputs-->
+                <!-- JavaScript Generated Inputs -->
         </div>
+
         <p>Code input:</p>
         <textarea id="code-editor"></textarea>
         <hr>
+
+        <div id="editor-actions">
+            <button id="run">Run</button>
+            <button id="stop" style="display: none;">Stop</button>
+            <button id="pause" style="display: none;">Pause</button>
+            <button id="resume" style="display: none;">Resume</button>
+            <button id="save">Save</button>
+            <button id="load">Load from file</button>
+        </div>
+
         <h2>Debugger</h2>
         <p>Save files, commands, or get the output of the debugger</p>
         <hr>
+
         <h2>Observatory</h2>
         <p>View camera feed</p>
         <hr>
+
         <!-- TODO: Resize this to actually look good -->
         <img id="cameraimg" style="width: 50vh">
     </body>
+
     <!--<script src="camera_feed.js"></script>-->
 </html>

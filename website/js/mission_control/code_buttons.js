@@ -25,8 +25,8 @@ export function run(missionLib) {
         };
         console.log(callPayload);
 
-        window.callAPI("call_method", callPayload).catch(err => {
-            window.alert("An error occurred when calling method");
+        missionLib.callMethod(callPayload).catch(err => {
+            window.alert("An error occurred when calling method:\n" + err);
             console.log(err);
         });
     }
