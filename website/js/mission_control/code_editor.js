@@ -139,6 +139,18 @@ export function run(missionLib) {
         gutters: ["CodeMirror-linenumbers", "CodeMirror-lint-markers"],
         lint: true
     });
+    const previousCode = window.localStorage.getItem("codeEditor");
+    if (previousCode) {
+        window.editor.setValue(previousCode);
+    }
+
+    window.editor.on("change", () => {
+        if (!window.editor.isEmpty()) {
+            window.localStorage.setItem("codeEditor", window.editor.getValue());
+        }
+    });
+
+    window.editor.isEmpty = function() { return this.getValue().trim() === ""};
     window.editor.textToMethods = text =>
         window.toLines(text).map((line, i) => parseLine(line, i));
     CodeMirror.registerHelper("lint", "text/x-java", text =>

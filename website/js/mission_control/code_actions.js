@@ -122,6 +122,9 @@ export function run(controlLib) {
 
     document.getElementById("save").addEventListener("click", () => downloadTextFile(window.editor.getValue()));
     document.getElementById("load").addEventListener("click", () => {
+        if (!window.editor.isEmpty() && !confirm("Loading from a file will erase the code currently in the editor. Are you sure you want to coninue?")) {
+            return;
+        }
         getTextFromFile().then(text => window.editor.setValue(text)).catch(err => {
             console.error(err);
             alert("An error occurred loading the text from the file. Please see the console for more details.");
