@@ -4,14 +4,12 @@ import fi.iki.elonen.NanoHTTPD;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
+import org.wolfsonrobotics.RobotWebServer.communication.MethodArg;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.MalformedRequestException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.RobotException;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.AbstractMap;
-import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
@@ -44,15 +42,12 @@ public class CallMethod extends RobotAPI {
 
 
         JSONArray args = body.getJSONArray("args");
-        Map<String, Object> argMap = IntStream.range(0, args.length())
+        MethodArg[] mArgs = IntStream.range(0, args.length())
                 .mapToObj(args::getJSONObject)
                 .map(obj -> {
                     String type = obj.keys().next();
-                    return new AbstractMap.SimpleEntry<>(type, obj.get(type));
-                }).collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue
-                ));
+                    return MethodArg.of(type, obj.get(type));
+                }).toArray(MethodArg[]::new);
 
         // temp for now manually switch bigdecimal to double
         // TOD: just make the above function not get BigDecimal at all
@@ -66,7 +61,7 @@ public class CallMethod extends RobotAPI {
         }*/
 
         try {
-            this.comLayer.callMethod(body.getString("name"), argMap);
+            this.comLayer.call(body.getString("name"), mArgs);
         } catch (IllegalAccessException e) {
             throw new BadInputException("The method with the specified arguments is not allowed to be called");
         } catch (NoSuchMethodException e) {

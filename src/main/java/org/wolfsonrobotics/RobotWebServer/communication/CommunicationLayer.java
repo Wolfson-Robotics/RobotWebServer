@@ -64,61 +64,9 @@ public class CommunicationLayer {
     }
 
 
-
-    public void call(String inputName, Map<Class<?>, Object> args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Method method = instance.getClass().getMethod(inputName, args.keySet().toArray(new Class[0]));
-        method.invoke(instance, args.values().toArray());
-    }
-    public void callMethod(String inputName, Map<String, Object> args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        // We cannot return a SimpleEntry and use Collectors.toMap to convert it to a
-        // Map in the stream because of a type error
-        Map<Class<?>, Object> castedArgs = new HashMap<>();
-        args.forEach((k, v) -> {
-            Class<?> argType;
-            Number numV = v instanceof Number ? ((Number) v) : null;
-            Object castedArg = v;
-
-            switch (k) {
-                case "int":
-                    argType = int.class;
-                    castedArg = numV.doubleValue();
-                    break;
-                case "double":
-                    argType = double.class;
-                    castedArg = numV.doubleValue();
-                    break;
-                case "float":
-                    argType = float.class;
-                    castedArg = numV.floatValue();
-                    break;
-                case "long":
-                    argType = long.class;
-                    castedArg = numV.longValue();
-                    break;
-                case "short":
-                    argType = short.class;
-                    castedArg = numV.shortValue();
-                    break;
-                case "byte":
-                    argType = byte.class;
-                    castedArg = numV.byteValue();
-                    break;
-                case "char":
-                    argType = char.class;
-                    castedArg = (char) numV.intValue();
-                    break;
-                case "String":
-                    argType = String.class;
-                    break;
-                default:
-                    argType = Object.class;
-                    break;
-            }
-            castedArgs.put(argType, castedArg);
-
-        });
-        call(inputName, castedArgs);
-
+    public void call(String inputName, MethodArg... args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method method = instance.getClass().getMethod(inputName, Arrays.stream(args).map(MethodArg::type).toArray(Class[]::new));
+        method.invoke(instance, Arrays.stream(args).map(MethodArg::arg).toArray());
     }
 
 
