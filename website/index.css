@@ -5,3 +5,13 @@
     gap: 0.3rem;
     align-items: center;
 }
+
+.CodeMirror .faded-line {
+    opacity: 0.3;
+    transition: opacity 0.3s;
+}
+
+.CodeMirror .highlight-line {
+    background-color: #ffeaa7;
+    opacity: 1 !important;
+}

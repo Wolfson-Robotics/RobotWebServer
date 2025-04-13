@@ -1,5 +1,28 @@
 export function run(controlLib) {
 
+    function clearHighlights() {
+        window.editor.eachLine(line => {
+            window.editor.removeLineClass(line, "wrap", "faded-line");
+            window.editor.removeLineClass(line, "wrap", "highlight-line");
+        });
+    }
+    function highlightLine(lineNumber) {
+        const doc = window.editor.getDoc();
+
+        clearHighlights();
+
+        window.editor.eachLine(line => {
+            window.editor.addLineClass(line, "wrap", "faded-line");
+        });
+
+        const handle = doc.getLineHandle(lineNumber);
+        window.editor.removeLineClass(handle, "wrap", "faded-line");
+        window.editor.addLineClass(handle, "wrap", "highlight-line");
+    }
+
+
+
+    let resolvePause;
     let pause;
     let stop = false;
 
@@ -8,22 +31,34 @@ export function run(controlLib) {
         .map(id => document.getElementById(id));
 
 
-    runBtn.addEventListener("click", () => {
+    runBtn.addEventListener("click", async() => {
+        stop = false;
+        pause = undefined;
+
         runBtn.hide();
         stopBtn.show();
-        window.editor.textToMethods(window.editor.getValue()).forEach(async(method, index) => {
+        pauseBtn.show();
+        // Use for loop instead of forEach to ensure successive execution
+        const methodsToRun = window.editor.textToMethods(window.editor.getValue());
+        for (let index = 0; index < methodsToRun.length; index++) {
+
             if (pause) {
                 await pause.then(() => pause = undefined);
             }
             if (!stop) {
-                await controlLib.callMethod(method).catch(err => {
+                highlightLine(index);
+                await controlLib.callMethod(methodsToRun[index]).catch(err => {
                     stop = true;
                     console.error(err);
                     alert(`An error occurred calling method ${method.name} at line ${index + 1}. Please see the console for more details.`);
                 });
             }
-        });
+
+        }
+
+        clearHighlights();
         stopBtn.hide();
+        pauseBtn.hide();
         runBtn.show();
     });
     stopBtn.addEventListener("click", () => {
@@ -33,15 +68,18 @@ export function run(controlLib) {
 
 
     pauseBtn.addEventListener("click", () => {
-        pause = new Promise(() => {});
+        pause = new Promise(resolve => resolvePause = resolve);
         pauseBtn.hide();
         resumeBtn.show();
     });
     resumeBtn.addEventListener("click", () => {
-        pause.resolve();
+        resolvePause();
         resumeBtn.hide();
         pauseBtn.show();
     });
+
+
+
 
 
     function downloadTextFile(text) {
