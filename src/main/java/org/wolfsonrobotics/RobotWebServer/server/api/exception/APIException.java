@@ -10,10 +10,14 @@ public class APIException extends Exception {
         super(msg);
     }
     protected APIException(Exception e) {
-        super(e);;
+        super(e);
     }
     protected APIException(String msg, Exception e) {
         super(msg, e);
+    }
+
+    public static APIException wrap(Exception e) {
+        return new APIException(e);
     }
 
     @Override

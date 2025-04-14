@@ -10,11 +10,15 @@ public class Main {
 
     public static void main(String[] args) {
 
+        // TODO (Reminder): When porting turn this into Environment.getExternalStorageDirectory().getPath()
+        String filePath = "";
         String[] excludedMethods = { "getCameraFeed" };
         RobotWebServer ws = new RobotWebServer(
                 8080,
                 "website/",
-                new CommunicationLayer(new FakeRobot(), null, excludedMethods));
+                new CommunicationLayer(new FakeRobot(), null, excludedMethods),
+                filePath
+                );
         try {
             ws.start();
         } catch (IOException e) {

@@ -4,7 +4,9 @@
         <meta charset="UTF-8">
         <title>FTC-{team number} Robot Web View</title>
 
-        <link rel="stylesheet" href="index.css">
+        <link rel="stylesheet" href="/css/index.css">
+        <link rel="stylesheet" href="/css/file_manager.css">
+
         <link rel="stylesheet" href="/libs/codemirror/codemirror.min.css">
         <link rel="stylesheet" href="/libs/codemirror/addon/lint/lint.css">
 
@@ -52,8 +54,13 @@
 
         <!-- TODO: Resize this to actually look good -->
         <img id="cameraimg" style="width: 50vh">
+
+        <h2>File Manager</h2>
+        <hr>
+        <div id="explorer"></div>
     </body>
 
     <script src="/js/mission_control/mission_control.js" type="text/javascript"></script>
+    <script src="/js/file_manager.js" type="text/javascript"></script>
     <!--<script src="camera_feed.js"></script>-->
 </html>

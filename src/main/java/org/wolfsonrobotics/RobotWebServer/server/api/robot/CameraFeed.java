@@ -1,8 +1,9 @@
-package org.wolfsonrobotics.RobotWebServer.server.api;
+package org.wolfsonrobotics.RobotWebServer.server.api.robot;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
+import org.wolfsonrobotics.RobotWebServer.server.api.RobotAPI;
 
 public class CameraFeed extends RobotAPI {
 

@@ -1,9 +1,10 @@
-package org.wolfsonrobotics.RobotWebServer.server.api;
+package org.wolfsonrobotics.RobotWebServer.server.api.robot;
 
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
+import org.wolfsonrobotics.RobotWebServer.server.api.RobotAPI;
 
 import java.lang.reflect.Parameter;
 import java.util.Arrays;

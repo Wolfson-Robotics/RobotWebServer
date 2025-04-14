@@ -1,0 +1,101 @@
+.rfe-tree,
+.rfe-subtree {
+    list-style: none;
+    margin: 0;
+    padding-left: 0;
+}
+
+.rfe-item {
+    margin: 0;
+    padding: 0;
+}
+
+.rfe-item-content {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.rfe-arrow {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 4px 0 4px 6px;
+    border-color: transparent transparent transparent #666;
+    transition: transform 0.2s ease;
+    margin-right: 6px;
+    flex-shrink: 0;
+}
+
+.rfe-item.expanded > .rfe-item-content > .rfe-arrow {
+    transform: rotate(90deg);
+}
+
+.rfe-arrow-placeholder {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-style: none;
+    margin-right: 6px;
+    flex-shrink: 0;
+}
+
+.rfe-icon {
+    display: inline-block;
+    width: 18px;
+    text-align: center;
+    margin-top: 3px;
+    margin-right: 6px;
+    flex-shrink: 0;
+}
+
+.rfe-name {
+    flex-grow: 1;
+}
+
+.rfe-subtree {
+    margin-left: 20px;
+}
+
+
+
+#rfe-context-menu {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    font-family: sans-serif;
+    font-size: 14px;
+    display: none;
+    min-width: 150px;
+    padding: 4px 0;
+}
+
+.rfe-context-menu-item {
+    padding: 6px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    white-space: nowrap;
+}
+
+.rfe-context-menu-item:last-child {
+    border-bottom: none;
+}
+
+.rfe-context-menu-item:hover {
+    background: #eee;
+}
+/* Hack for fixing icon */
+.rfe-icon svg.file-icon {
+    transform: scaleX(1.3);
+    transform-origin: left center;
+}
+
+.rfe-item.selected > .rfe-item-content {
+    background-color: #007acc; /* IntelliJ-style blue */
+    color: white;
+}

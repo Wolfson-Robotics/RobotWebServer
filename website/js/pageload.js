@@ -61,6 +61,9 @@ Array.prototype.removeElem = function(elem) {
     }
     this.remove(index);
 };
+Array.prototype.lastElem = function() {
+    return this[this.length - 1];
+};
 
 
 window.toLines = (text) => {
@@ -69,4 +72,18 @@ window.toLines = (text) => {
 // General element helper methods
 HTMLElement.prototype.hide = function() { this.style.display = "none"; };
 HTMLElement.prototype.show = function() { this.style.display = "block"; };
+HTMLElement.prototype.addClass = function(clazz) { this.classList.add(clazz); }
+HTMLElement.prototype.removeClass = function(clazz) { this.classList.remove(clazz); };
+HTMLElement.prototype.hasClass = function(clazz) { return this.classList.contains(clazz); };
 
+// Custom constructor helpful for our purposes
+// No arrow functions to preserve this for element operations
+document.elemOf = function(tag, info) {
+    const elem = document.createElement(tag);
+    Object.entries(info).forEach(([prop, propVal]) => elem[prop] = propVal);
+    return elem;
+};
+document.ofId = function(tag, id) {
+    return document.elemOf(tag, { id: id });
+};
+document.ofClass = (tag, className) => document.elemOf(tag, { className: className });

@@ -1,10 +1,11 @@
-package org.wolfsonrobotics.RobotWebServer.server.api;
+package org.wolfsonrobotics.RobotWebServer.server.api.robot;
 
 import fi.iki.elonen.NanoHTTPD;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 import org.wolfsonrobotics.RobotWebServer.communication.MethodArg;
+import org.wolfsonrobotics.RobotWebServer.server.api.RobotAPI;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.MalformedRequestException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.RobotException;

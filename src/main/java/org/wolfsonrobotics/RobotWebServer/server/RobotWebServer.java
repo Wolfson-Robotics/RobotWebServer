@@ -4,14 +4,19 @@ import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
 import org.json.JSONObject;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
-import org.wolfsonrobotics.RobotWebServer.server.api.AllMethods;
-import org.wolfsonrobotics.RobotWebServer.server.api.CallMethod;
-import org.wolfsonrobotics.RobotWebServer.server.api.CameraFeed;
+import org.wolfsonrobotics.RobotWebServer.fakerobot.FileExplorer;
+import org.wolfsonrobotics.RobotWebServer.server.api.FileAPI;
 import org.wolfsonrobotics.RobotWebServer.server.api.RobotAPI;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.APIException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.MalformedRequestException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.RobotException;
+import org.wolfsonrobotics.RobotWebServer.server.api.file.DirectoryAction;
+import org.wolfsonrobotics.RobotWebServer.server.api.file.FileAction;
+import org.wolfsonrobotics.RobotWebServer.server.api.file.Listing;
+import org.wolfsonrobotics.RobotWebServer.server.api.robot.AllMethods;
+import org.wolfsonrobotics.RobotWebServer.server.api.robot.CallMethod;
+import org.wolfsonrobotics.RobotWebServer.server.api.robot.CameraFeed;
 
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
@@ -29,22 +34,36 @@ public class RobotWebServer extends NanoHTTPD {
 
     private NanoWSD webSocket;
     private final CommunicationLayer comLayer;
+    private final FileExplorer robotStorage;
+
+    // TODO: Perhaps generalize fileAPI and robotAPI associations
+    private final Map<String, Class<? extends RobotAPI>> robotAPIMap = new HashMap<>();
+    private final Map<String, Class<? extends FileAPI>> fileAPIMap = new HashMap<>();
 
 
-    private final Map<String, Class<? extends RobotAPI>> urlHandlerMap = new HashMap<>();
-
-
-    public RobotWebServer(int port, String webroot, CommunicationLayer comLayer) {
+    public RobotWebServer(int port, String webroot, CommunicationLayer comLayer, String storage) {
         super(port);
         this.port = port;
         this.webroot = webroot;
         this.comLayer = comLayer;
 
-        // Construct map since Map.ofEntries is not supported in Java 8
-        this.urlHandlerMap.put("/robot/all_methods", AllMethods.class);
-        this.urlHandlerMap.put("/robot/call_method", CallMethod.class);
-        this.urlHandlerMap.put("/robot/camera_feed", CameraFeed.class);
+        FileExplorer robotStorage;
+        try {
+            robotStorage = new FileExplorer(storage);
+        } catch (IOException e) {
+            robotStorage = null;
+            System.out.println("WARNING: An error occurred instantiating the storage interface");
+        }
+        this.robotStorage = robotStorage;
 
+        // Construct map since Map.ofEntries is not supported in Java 8
+        this.robotAPIMap.put("/robot/all_methods", AllMethods.class);
+        this.robotAPIMap.put("/robot/call_method", CallMethod.class);
+        this.robotAPIMap.put("/robot/camera_feed", CameraFeed.class);
+
+        this.fileAPIMap.put("/file/listing", Listing.class);
+        this.fileAPIMap.put("/file/file_operation", FileAction.class);
+        this.fileAPIMap.put("/file/directory_operation", DirectoryAction.class);
     }
 
 
@@ -180,7 +199,8 @@ public class RobotWebServer extends NanoHTTPD {
         StringWriter output = new StringWriter();
         StringBuilder mimeType = new StringBuilder(MIME_PLAINTEXT);
 
-        urlHandlerMap.forEach((url, handler) -> {
+        // TODO: Make this generalized
+        robotAPIMap.forEach((url, handler) -> {
             // TODO: make this stop checking if it get's the correct url
             if (!url.equalsIgnoreCase(session.getUri()) || output.getBuffer().length() > 0) {
                 return;
@@ -213,6 +233,42 @@ public class RobotWebServer extends NanoHTTPD {
                 // APIException as per its throws declaration, disregard
                 output.append(e.getMessage());
                 status.set(Response.Status.INTERNAL_ERROR);
+                e.printStackTrace();
+            }
+        });
+
+        fileAPIMap.forEach((url, handler) -> {
+            // TODO: make this stop checking if it get's the correct url
+            if (!url.equalsIgnoreCase(session.getUri()) || output.getBuffer().length() > 0) {
+                return;
+            }
+
+            try {
+                FileAPI handle = handler.getConstructor(IHTTPSession.class, FileExplorer.class).newInstance(session, this.robotStorage);
+                String message = handle.handle();
+                if (message != null) {
+                    output.append(message);
+                    mimeType.setLength(0);
+                    mimeType.append(handle.responseType);
+                } else {
+                    output.flush();
+                }
+
+            } catch (NoSuchMethodException |
+                     InstantiationException |
+                     IllegalAccessException |
+                     InvocationTargetException |
+                     MalformedRequestException | BadInputException e) {
+                output.append(e.getMessage());
+                status.set(Response.Status.BAD_REQUEST);
+                e.printStackTrace();
+
+            } catch (APIException e) {
+                // Stub caused by the BaseAPI's absorption of exceptions into
+                // APIException as per its throws declaration, disregard
+                output.append(e.getMessage());
+                status.set(e.getCause() instanceof IllegalAccessException ?
+                        Response.Status.UNAUTHORIZED : Response.Status.INTERNAL_ERROR);
                 e.printStackTrace();
             }
         });
