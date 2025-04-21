@@ -3,6 +3,7 @@ package org.wolfsonrobotics.RobotWebServer.server.api;
 import fi.iki.elonen.NanoHTTPD;
 import org.wolfsonrobotics.RobotWebServer.fakerobot.FileExplorer;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.APIException;
+import org.wolfsonrobotics.RobotWebServer.server.api.exception.ExceptionWrapper;
 
 public abstract class FileAPI extends BaseAPI {
 
@@ -18,7 +19,7 @@ public abstract class FileAPI extends BaseAPI {
         super.commonHandle();
         try {
             return this.fileHandle();
-        } catch (Exception e) { throw APIException.wrap(e); }
+        } catch (Exception e) { throw new ExceptionWrapper(e); }
     }
 
     protected abstract String fileHandle() throws Exception;

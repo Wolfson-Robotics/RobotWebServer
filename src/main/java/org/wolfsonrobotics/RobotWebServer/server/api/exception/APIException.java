@@ -2,7 +2,9 @@ package org.wolfsonrobotics.RobotWebServer.server.api.exception;
 
 import org.json.JSONObject;
 
-public class APIException extends Exception {
+import static fi.iki.elonen.NanoHTTPD.Response;
+
+public abstract class APIException extends Exception {
 
     // Manually specify super constructors here so that APIException children
     // can access the super constructors of Exception
@@ -16,9 +18,8 @@ public class APIException extends Exception {
         super(msg, e);
     }
 
-    public static APIException wrap(Exception e) {
-        return new APIException(e);
-    }
+
+    public abstract Response.Status getStatus();
 
     @Override
     public String getMessage() {

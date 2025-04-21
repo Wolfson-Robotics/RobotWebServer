@@ -61,9 +61,9 @@ export function run(controlLib) {
         pauseBtn.hide();
         runBtn.show();
     });
-    stopBtn.addEventListener("click", () => {
+    stopBtn.addEventListener("click", async() => {
         stop = true;
-        if (pause) pause.resolve();
+        if (pause) resolvePause();
     });
 
 
@@ -82,50 +82,12 @@ export function run(controlLib) {
 
 
 
-    function downloadTextFile(text) {
-        const now = new Date();
-        const doubleDigit = (n) => String(n).padStart(2, '0');
-
-        const blob = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
-
-        const a = document.createElement('a');
-        a.href = blob;
-        a.download = `code-editor-${now.getFullYear()}${doubleDigit(now.getMonth() + 1)}${doubleDigit(now.getDate())}-${doubleDigit(now.getHours())}${doubleDigit(now.getMinutes())}${doubleDigit(now.getSeconds())}.txt`;
-        a.click();
-
-        URL.revokeObjectURL(blob);
-    }
-
-    function getTextFromFile() {
-        return new Promise((resolve, reject) => {
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.accept = '.txt';
-
-            fileInput.addEventListener('change', () => {
-                const file = fileInput.files[0];
-                if (!file) {
-                    reject('No file selected.');
-                    return;
-                }
-
-                const reader = new FileReader();
-                reader.onload = (e) => resolve(e.target.result);
-                reader.onerror = (e) => reject('Error reading file.');
-                reader.readAsText(file);
-            });
-
-            fileInput.click();
-        });
-    }
-
-
-    document.getElementById("save").addEventListener("click", () => downloadTextFile(window.editor.getValue()));
+    document.getElementById("save").addEventListener("click", () => window.downloadTextFile(window.editor.getValue(), `code-editor-${getHumanDate()}.txt`));
     document.getElementById("load").addEventListener("click", () => {
         if (!window.editor.isEmpty() && !confirm("Loading from a file will erase the code currently in the editor. Are you sure you want to coninue?")) {
             return;
         }
-        getTextFromFile().then(text => window.editor.setValue(text)).catch(err => {
+        window.getFileChoice().then(file => window.getTextFromFile(file)).then(text => window.editor.setValue(text)).catch(err => {
             console.error(err);
             alert("An error occurred loading the text from the file. Please see the console for more details.");
         });

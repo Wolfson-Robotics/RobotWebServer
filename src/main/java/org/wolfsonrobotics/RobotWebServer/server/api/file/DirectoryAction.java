@@ -3,6 +3,7 @@ package org.wolfsonrobotics.RobotWebServer.server.api.file;
 import fi.iki.elonen.NanoHTTPD;
 import org.wolfsonrobotics.RobotWebServer.fakerobot.FileExplorer;
 import org.wolfsonrobotics.RobotWebServer.server.api.FileAPI;
+import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException;
 
 public class DirectoryAction extends FileAPI {
 
@@ -14,7 +15,11 @@ public class DirectoryAction extends FileAPI {
     protected String fileHandle() throws Exception {
 
         String path = this.getBody("path");
+        if (!this.fileExplorer.isDirectory(path)) throw new BadInputException("The path specified is not a directory.");
+
         switch (this.getBody("action")) {
+            case "exists":
+                return singletonObj("result", this.fileExplorer.fileExists(path)).toString();
             case "create":
                 this.fileExplorer.createDir(path);
                 break;
@@ -27,6 +32,8 @@ public class DirectoryAction extends FileAPI {
             case "delete":
                 this.fileExplorer.deleteDir(path);
                 break;
+            default:
+                throw new BadInputException("Unsupported action");
         }
         return success();
 

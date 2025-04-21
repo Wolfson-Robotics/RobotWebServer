@@ -1,6 +1,9 @@
 package org.wolfsonrobotics.RobotWebServer.fakerobot;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 // Limits the scope of the explorer to the given file path on construction
 public class FileExplorer {
@@ -22,7 +25,17 @@ public class FileExplorer {
         return new File(toAbsPath(filePath));
     }
 
+    public boolean isFile(String subPath) throws IOException, IllegalAccessException {
+        return toAbsFile(subPath).isFile() || subPath.contains(".");
+    }
+    public boolean isDirectory(String subPath) throws IOException, IllegalAccessException {
+        return toAbsFile(subPath).isDirectory() || !subPath.contains(".");
+    }
+
     public File[] dirListing(String subPath) throws IOException, IllegalAccessException {
+        File subFile = toAbsFile(subPath);
+        if (!subFile.exists()) throw new IOException("The given directory does not exist.");
+        if (subFile.isFile()) throw new IOException("The given path is a file.");
         return toAbsFile(subPath).listFiles();
     }
     public File[] dirListing() throws IOException, IllegalAccessException {
@@ -43,7 +56,7 @@ public class FileExplorer {
         while ((line = reader.readLine()) != null) {
             content.append(line).append(System.lineSeparator());
         }
-
+        reader.close();
         return content.toString();
     }
 
@@ -62,6 +75,9 @@ public class FileExplorer {
         if (file.exists()) {
             throw new IOException("File " + filePath + " already exists.");
         }
+        if (!file.getParentFile().exists()) {
+            throw new IOException("The directory to create the file in does not exist.");
+        }
         if (!file.createNewFile()) {
             throw new IOException("Failed to create new file " + filePath);
         }
@@ -72,15 +88,17 @@ public class FileExplorer {
     }
 
     public void renameFile(String filePath, String newFilePath) throws IOException, IllegalAccessException {
-        copyFile(filePath, newFilePath);
-        deleteFile(filePath);
+        Files.move(Paths.get(toAbsPath(filePath)), Paths.get(toAbsPath(newFilePath)));
+//        copyFile(filePath, newFilePath);
+//        deleteFile(filePath);
     }
 
     public void copyFile(String filePath, String newFilePath) throws IOException, IllegalAccessException {
         if (fileExists(newFilePath)) {
-            throw new IOException("The provided path " + newFilePath + " to move " + filePath + " to already exists.");
+            throw new IOException("The provided path " + newFilePath + " to copy " + filePath + " to already exists.");
         }
-        createFile(newFilePath, getFile(filePath));
+        Files.copy(Paths.get(toAbsPath(filePath)), Paths.get(toAbsPath(newFilePath)), StandardCopyOption.COPY_ATTRIBUTES);
+//        createFile(newFilePath, getFile(filePath));
     }
 
     public void deleteFile(String filePath) throws IOException, IllegalAccessException {
@@ -104,7 +122,9 @@ public class FileExplorer {
         for (File file : dirListing(dirPath)) {
             String oldPath = dirPath + File.separator + file.getName();
             String newPath = newDirPath + File.separator + file.getName();
-            if (file.isDirectory()) {
+            if (file.isDirectory() &&
+                    !new File(newPath).getCanonicalPath()
+                            .startsWith(new File(dirPath).getCanonicalPath())) {
                 copyDir(oldPath, newPath);
             } else {
                 copyFile(oldPath, newPath);

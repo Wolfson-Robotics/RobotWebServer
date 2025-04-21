@@ -1,33 +1,31 @@
 package org.wolfsonrobotics.RobotWebServer.communication;
 
-import org.wolfsonrobotics.RobotWebServer.fakerobot.FakeRobot;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
 public class CommunicationLayer {
-    
-    private final FakeRobot instance;
+
+    private final Object instance;
     private Method[] methods;
     private Set<Method> excludedMethods;
 
-    public CommunicationLayer(FakeRobot instance) {
+    public CommunicationLayer(Object instance) {
         this.instance = instance;
     }
 
-    public CommunicationLayer(FakeRobot instance, Method[] methods, Method[] excludedMethods) {
+    public CommunicationLayer(Object instance, Method[] methods, Method[] excludedMethods) {
         this(instance);
-        this.methods = methods; 
+        this.methods = methods;
         this.excludedMethods = new HashSet<>(Arrays.asList(excludedMethods));
     }
-    public CommunicationLayer(FakeRobot instance, String[] methods, String[] excludedMethods) {
+    public CommunicationLayer(Object instance, String[] methods, String[] excludedMethods) {
         this(instance, stringToMethod(instance, methods), stringToMethod(instance, excludedMethods));
     }
 
 
-    private static Method stringToMethod(FakeRobot instance, String methodName) {
+    private static Method stringToMethod(Object instance, String methodName) {
         if (methodName == null) return null;
         try {
             return instance.getClass().getDeclaredMethod(methodName);
@@ -35,7 +33,7 @@ public class CommunicationLayer {
             return null;
         }
     }
-    private static Method[] stringToMethod(FakeRobot instance, String[] methodNames) {
+    private static Method[] stringToMethod(Object instance, String[] methodNames) {
         if (methodNames == null) return null;
         return Arrays.stream(methodNames)
                 .map(m -> CommunicationLayer.stringToMethod(instance, m))

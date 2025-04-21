@@ -16,13 +16,11 @@
         document.head.appendChild(script);
     }
 
-    const amREQ = await fetch(window.location.protocol + "/robot/all_methods");
-    const amRES = await amREQ.json();
+    const amRES = await window.getAPI("/robot/all_methods").then(res => res.json());
     if (amRES.error) {
         alert("An error occurred fetching the robot methods. Details:\n" + amRES.error);
         return;
     }
-
     window.robotMethods = amRES;
 
     class TypeQualifier {
@@ -247,7 +245,7 @@
         return isNaN(num) ? NaN : num;
     }
 
-    missionControlLib.callMethod = callPayload => window.callAPI("call_method", callPayload);
+    missionControlLib.callMethod = callPayload => window.callAPI("/robot/call_method", callPayload);
 
 
     const scriptsToLoad = ["code_editor.js", "code_buttons.js"];

@@ -1,5 +1,7 @@
 package org.wolfsonrobotics.RobotWebServer.server.api.exception;
 
+import fi.iki.elonen.NanoHTTPD;
+
 public class MalformedRequestException extends APIException {
 
     public MalformedRequestException(String msg) {
@@ -10,6 +12,11 @@ public class MalformedRequestException extends APIException {
     }
     public MalformedRequestException(String msg, Exception e) {
         super(msg, e);
+    }
+
+    @Override
+    public NanoHTTPD.Response.Status getStatus() {
+        return NanoHTTPD.Response.Status.BAD_REQUEST;
     }
 
 }

@@ -5,12 +5,11 @@ import fi.iki.elonen.NanoWSD;
 import org.json.JSONObject;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 import org.wolfsonrobotics.RobotWebServer.fakerobot.FileExplorer;
+import org.wolfsonrobotics.RobotWebServer.server.api.BaseAPI;
 import org.wolfsonrobotics.RobotWebServer.server.api.FileAPI;
 import org.wolfsonrobotics.RobotWebServer.server.api.RobotAPI;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.APIException;
-import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException;
-import org.wolfsonrobotics.RobotWebServer.server.api.exception.MalformedRequestException;
-import org.wolfsonrobotics.RobotWebServer.server.api.exception.RobotException;
+import org.wolfsonrobotics.RobotWebServer.server.api.exception.ExceptionWrapper;
 import org.wolfsonrobotics.RobotWebServer.server.api.file.DirectoryAction;
 import org.wolfsonrobotics.RobotWebServer.server.api.file.FileAction;
 import org.wolfsonrobotics.RobotWebServer.server.api.file.Listing;
@@ -19,8 +18,10 @@ import org.wolfsonrobotics.RobotWebServer.server.api.robot.CallMethod;
 import org.wolfsonrobotics.RobotWebServer.server.api.robot.CameraFeed;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class RobotWebServer extends NanoHTTPD {
     private final CommunicationLayer comLayer;
     private final FileExplorer robotStorage;
 
-    // TODO: Perhaps generalize fileAPI and robotAPI associations
+
     private final Map<String, Class<? extends RobotAPI>> robotAPIMap = new HashMap<>();
     private final Map<String, Class<? extends FileAPI>> fileAPIMap = new HashMap<>();
 
@@ -103,7 +104,7 @@ public class RobotWebServer extends NanoHTTPD {
 
             // The rest of these will only be implemented when the project will need them
             default:
-                return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, method.toString() + " not implemented");
+                return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, method + " not implemented");
         }
 
     }
@@ -193,87 +194,51 @@ public class RobotWebServer extends NanoHTTPD {
         return r;
     }
 
+
+
+
     private Response handleAPI(IHTTPSession session) {
 
-        AtomicReference<Response.Status> status = new AtomicReference<>(Response.Status.OK);
+        AtomicReference<Response.Status> status = new AtomicReference<>();
         StringWriter output = new StringWriter();
         StringBuilder mimeType = new StringBuilder(MIME_PLAINTEXT);
 
-        // TODO: Make this generalized
-        robotAPIMap.forEach((url, handler) -> {
-            // TODO: make this stop checking if it get's the correct url
-            if (!url.equalsIgnoreCase(session.getUri()) || output.getBuffer().length() > 0) {
-                return;
-            }
 
-            try {
-                RobotAPI handle = handler.getConstructor(IHTTPSession.class, CommunicationLayer.class).newInstance(session, this.comLayer);
-                String message = handle.handle();
-                if (message != null) {
-                    output.append(message);
-                    mimeType.setLength(0);
-                    mimeType.append(handle.responseType);
-                } else {
-                    output.flush();
-                }
+        Map<Map<String, ? extends Class<?>>, Object> mapConstructors = new HashMap<>();
+        mapConstructors.put(robotAPIMap, this.comLayer);
+        mapConstructors.put(fileAPIMap, this.robotStorage);
 
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException
-                     | RobotException e) {
-                output.append(e.getMessage());
-                status.set(Response.Status.INTERNAL_ERROR);
-                e.printStackTrace();
+        mapConstructors.forEach((apiMap, arg) ->
+            apiMap.entrySet().stream()
+                    .filter(e -> uriEquals(e.getKey(), session.getUri()))
+                    .map(Map.Entry::getValue)
+                    .findFirst()
+                    .ifPresent(handlerType -> {
 
-            } catch (MalformedRequestException | BadInputException e) {
-                output.append(e.getMessage());
-                status.set(Response.Status.BAD_REQUEST);
-                e.printStackTrace();
+                        try {
+                            BaseAPI handler = (BaseAPI) handlerType.getConstructor(IHTTPSession.class, arg.getClass()).newInstance(session, arg);
+                            String message = handler.handle();
+                            if (message != null) {
+                                output.append(message);
+                                status.set(Response.Status.OK);
+                                mimeType.setLength(0);
+                                mimeType.append(handler.responseType);
+                            } else { output.flush(); }
+                        } catch (APIException e) {
+                            output.append(e.getMessage());
+                            status.set(e.getStatus());
+                            e.printStackTrace();
+                        } catch (Exception rawE) {
+                            ExceptionWrapper e =  new ExceptionWrapper(rawE);
+                            output.append(e.getMessage());
+                            status.set(e.getStatus());
+                            e.printStackTrace();
+                        }
 
-            } catch (APIException e) {
-                // Stub caused by the BaseAPI's absorption of exceptions into
-                // APIException as per its throws declaration, disregard
-                output.append(e.getMessage());
-                status.set(Response.Status.INTERNAL_ERROR);
-                e.printStackTrace();
-            }
-        });
+                    }));
 
-        fileAPIMap.forEach((url, handler) -> {
-            // TODO: make this stop checking if it get's the correct url
-            if (!url.equalsIgnoreCase(session.getUri()) || output.getBuffer().length() > 0) {
-                return;
-            }
-
-            try {
-                FileAPI handle = handler.getConstructor(IHTTPSession.class, FileExplorer.class).newInstance(session, this.robotStorage);
-                String message = handle.handle();
-                if (message != null) {
-                    output.append(message);
-                    mimeType.setLength(0);
-                    mimeType.append(handle.responseType);
-                } else {
-                    output.flush();
-                }
-
-            } catch (NoSuchMethodException |
-                     InstantiationException |
-                     IllegalAccessException |
-                     InvocationTargetException |
-                     MalformedRequestException | BadInputException e) {
-                output.append(e.getMessage());
-                status.set(Response.Status.BAD_REQUEST);
-                e.printStackTrace();
-
-            } catch (APIException e) {
-                // Stub caused by the BaseAPI's absorption of exceptions into
-                // APIException as per its throws declaration, disregard
-                output.append(e.getMessage());
-                status.set(e.getCause() instanceof IllegalAccessException ?
-                        Response.Status.UNAUTHORIZED : Response.Status.INTERNAL_ERROR);
-                e.printStackTrace();
-            }
-        });
-
-        if (output.getBuffer().length() == 0) {
+        if (status.get() == null) {
+            output.flush();
             output.append("404 Not Found");
             status.set(Response.Status.NOT_FOUND);
         }
@@ -315,6 +280,21 @@ public class RobotWebServer extends NanoHTTPD {
         }
         return null;
 
+    }
+
+
+    private String fixPath(String url) {
+        String intermediateURL;
+        try {
+            intermediateURL = new URI(url).normalize().toString();
+        } catch (URISyntaxException e) {
+            intermediateURL = url;
+        }
+        return Arrays.stream(intermediateURL.trim().split("/")).filter(s -> !s.isEmpty()).collect(Collectors.joining("/"));
+    }
+
+    private boolean uriEquals(String url1, String url2) {
+        return fixPath(url1).equalsIgnoreCase(fixPath(url2));
     }
 
 
