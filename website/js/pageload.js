@@ -1,4 +1,4 @@
-fetch("http://localhost:8080/robot/config.json")
+fetch("http://localhost:8080/config.json")
     .then(response => response.json())
     .then(data => {
         window.config = data;

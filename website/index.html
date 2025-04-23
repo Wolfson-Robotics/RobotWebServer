@@ -19,51 +19,61 @@
 
     </head>
     <body>
+
         <h1 id="page-title">FTC-{team number} Robot Web Dashboard</h1>
         <hr>
 
+
         <h2>Mission Control</h2>
-        <p>Anything that can be changed or operated goes here (i.e. movement, rotation, etc)</p>
         <hr>
 
-        <div id="inputs">
-                <!-- JavaScript Generated Inputs -->
+        <div id="mission-control" class="dual">
+
+            <div id="robot-actions">
+                <h3>Actions</h3>
+                <div id="inputs">
+
+                </div>
+            </div>
+
+            <div id="robot-editor">
+                <h3>Code Editor</h3>
+                <textarea id="code-editor"></textarea>
+                <div id="editor-actions">
+                    <button id="run">Run</button>
+                    <button id="stop" style="display: none;">Stop</button>
+                    <button id="pause" style="display: none;">Pause</button>
+                    <button id="resume" style="display: none;">Resume</button>
+                    <button id="save">Save</button>
+                    <button id="load">Load from file</button>
+                </div>
+            </div>
         </div>
 
-        <p>Code input:</p>
-        <textarea id="code-editor"></textarea>
         <hr>
-
-        <div id="editor-actions">
-            <button id="run">Run</button>
-            <button id="stop" style="display: none;">Stop</button>
-            <button id="pause" style="display: none;">Pause</button>
-            <button id="resume" style="display: none;">Resume</button>
-            <button id="save">Save</button>
-            <button id="load">Load from file</button>
-        </div>
-
         <h2>Observatory</h2>
-        <p>View camera feed</p>
         <hr>
+        <div id="observatory" class="dual">
 
-        <!-- TODO: Resize this to actually look good -->
-        <div id="camera-feed" style="display: none;">
-            <img id="cameraimg" style="width: 50vh">
+            <div id="robot-devices-section">
+                <h3>Robot Devices</h3>
+                <ul id="robot-devices"></ul>
+            </div>
+
+            <div id="telemetry-section">
+                <h3>Telemetry</h3>
+                <textarea id="telemetry" rows="15" readonly></textarea>
+            </div>
+
+            <div id="camera-feed-section">
+                <h3>Camera Feed</h3>
+                <img id="camera-feed" style="display: none !important;">
+                <button id="camera-toggle">Toggle Camera Feed</button>
+            </div>
+
         </div>
-        <button id="camera-toggle">Toggle Camera Feed</button>
 
-
-        <h2>Robot Devices</h2>
         <hr>
-        <div id="robot-devices-section">
-            <ul id="robot-devices"></ul>
-        </div>
-
-        <h2>Telemetry</h2>
-        <hr>
-        <textarea id="telemetry" rows="15" readonly></textarea>
-
         <h2>File Manager</h2>
         <hr>
         <div id="explorer"></div>

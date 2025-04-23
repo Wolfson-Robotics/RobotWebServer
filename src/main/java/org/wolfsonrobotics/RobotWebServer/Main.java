@@ -1,6 +1,5 @@
 package org.wolfsonrobotics.RobotWebServer;
 
-import nu.pattern.OpenCV;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 import org.wolfsonrobotics.RobotWebServer.fakerobot.FakeRobot;
 import org.wolfsonrobotics.RobotWebServer.server.RobotWebServer;
@@ -38,7 +37,7 @@ public class Main {
         try {
             while (ws.isAlive()) {
                 instance.populateTelemetry();
-                Thread.sleep(2000);
+                Thread.sleep(1000);
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

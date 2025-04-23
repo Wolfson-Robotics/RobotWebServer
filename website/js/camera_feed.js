@@ -1,5 +1,8 @@
 (async() => {
 
+    const feed = document.getElementById("camera-feed")
+
+
     function init() {
 
         const cameraSocket = window.startSocket("/robot/camera_feed");
@@ -10,29 +13,27 @@
             cameraSocket.send("req_full_image");
         }
 
-        cameraSocket.onmessage = (e) => {
+        cameraSocket.onmessage = async(e) => {
 
             const arrayBuffer = e.data;
-            const blob = new Blob([arrayBuffer], { type: "image/jpeg" });
-            const imageUrl = URL.createObjectURL(blob);
-            const img = document.getElementById("cameraimg");
-            img.src = imageUrl;
-
+            feed.src = URL.createObjectURL(new Blob([arrayBuffer], { type: "image/jpeg" }));
             cameraSocket.send("");
 
         };
-        document.getElementById("camera-feed").style.display = "block";
+
+        feed.style.display = "block";
         return cameraSocket;
 
     }
+
     function stop(cameraSocket) {
         cameraSocket.close(1000, "Closing camera feed");
-        document.getElementById("camera-feed").style.display = "none";
+        feed.style.display = "none";
     }
 
 
     let currSocket;
-    let shown = window.localStorage.getItem("camera_feed_shown") ?? true;
+    let shown = window.localStorage.getItem("camera_feed_shown") === "true" ?? true;
     function update() {
         window.localStorage.setItem("camera_feed_shown", shown);
         if (shown) {
