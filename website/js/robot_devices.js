@@ -25,9 +25,11 @@
                     style: config.icons_css[type] ?? ""
                 }));
 
+                deviceInfoList.appendChild(document.elemOf("small", {textContent: device.type }));
                 deviceInfoList.appendChild(document.elemOf("span", {innerHTML: `<b>${device.name}</b>`}));
                 deviceInfoList.appendChild(document.elemOf("hr"));
             }
+
 
             Object.entries(device).forEach(([field, val]) => {
                 if (["type", "name"].includes(field)) return;
