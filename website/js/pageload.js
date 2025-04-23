@@ -21,7 +21,7 @@ window.callAPI = (endpoint, payload) => {
 };
 
 window.startSocket = (endpoint) => new WebSocket(`ws://localhost:9090/${endpoint}`);
-window.aliveSocket = (socket, message, opName = String(Math.random()), timeout = 5000) => {
+window.aliveSocket = (socket, message = "ping", opName = String(Math.random()), timeout = 5000) => {
 
     if (!socket.running) socket.running = {};
     socket.running[opName] = window.setInterval(() => {

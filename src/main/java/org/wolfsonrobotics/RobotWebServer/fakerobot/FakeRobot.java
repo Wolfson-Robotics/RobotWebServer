@@ -3,6 +3,7 @@ package org.wolfsonrobotics.RobotWebServer.fakerobot;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.wolfsonrobotics.RobotWebServer.fakerobot.telemetry.Telemetry;
 
 public class FakeRobot {
 
@@ -15,6 +16,7 @@ public class FakeRobot {
     private DcMotorEx motor2 = new DcMotorEx();
     private Servo servo1 = new Servo();
     private Servo servo2 = new Servo();
+    private Telemetry telemetry = new Telemetry();
 
     public void moveBot(int plusX, int plusY) {
         locationX += plusX;
@@ -46,6 +48,15 @@ public class FakeRobot {
 
     public void sleep(long ms) {
         try { Thread.sleep(ms); } catch (Exception ignored) {}
+    }
+
+
+    // Method to test telemetry changes being shown in frontend
+    public void populateTelemetry() {
+        telemetry.update();
+        for (int i = 0; i < Math.floor(Math.random() * 15) + 1; i++) {
+            telemetry.addLine(String.valueOf(Math.random()));
+        }
     }
 
 

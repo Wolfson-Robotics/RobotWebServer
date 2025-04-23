@@ -38,7 +38,7 @@ public class DeviceInfoSocket extends BaseSocket {
     @Override
     public void onOpen() {
         super.onOpen();
-        this.keepRunning(this::onMessage);
+        this.keepMessaging();
     }
 
     @Override
@@ -50,7 +50,7 @@ public class DeviceInfoSocket extends BaseSocket {
 
                 CommunicationLayer comp;
                 try {
-                    comp = commLayer.getField(field);
+                    comp = commLayer.getFieldLayer(field);
                 } catch (NoSuchFieldException | IllegalAccessException e) {
                     throw new RobotException(e);
                 }

@@ -55,6 +55,6 @@
 
     };
 
-    window.aliveSocket(deviceInfoSocket, "ping");
+    window.aliveSocket(deviceInfoSocket);
 
 })();

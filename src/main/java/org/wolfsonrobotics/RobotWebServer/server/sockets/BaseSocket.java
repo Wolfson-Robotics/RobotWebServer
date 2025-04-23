@@ -23,8 +23,28 @@ public abstract class BaseSocket extends WebSocket {
     }
 
     protected void keepRunning(Runnable fn) {
-        ticker.scheduleAtFixedRate(() -> this.onMessage(null), 0, 1, TimeUnit.SECONDS);
+        ticker.scheduleAtFixedRate(fn, 0, 1, TimeUnit.SECONDS);
     }
+    protected void keepMessaging() {
+        this.keepRunning(() -> this.onMessage(null));
+    }
+
+
+    protected void closeError(String msg) {
+        try {
+            close(CloseCode.InternalServerError, "An error occurred: " + msg, false);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    protected void closeError(Exception e) {
+        closeError(e.getMessage());
+    }
+    protected void closeError() {
+        closeError("");
+    }
+
+
 
     @Override
     protected void onOpen() {

@@ -13,10 +13,12 @@ public class Main {
         // TODO (Reminder): When porting turn this into Environment.getExternalStorageDirectory().getPath()
         String filePath = "";
         String[] excludedMethods = { "getCameraFeed" };
+
+        FakeRobot instance = new FakeRobot();
         RobotWebServer ws = new RobotWebServer(
                 8080,
                 "website/",
-                new CommunicationLayer(new FakeRobot(), null, excludedMethods),
+                new CommunicationLayer(instance, null, excludedMethods),
                 filePath
                 );
         try {
@@ -26,6 +28,17 @@ public class Main {
             if (ws.isAlive()) {
                 System.out.println("Failed to close webserver after start failure");
             }
+            throw new RuntimeException(e);
+        }
+
+        // Loop to keep things updated for the FakeRobot for demonstration purposes.
+        // Is not necessary once ported to robot code
+        try {
+            while (ws.isAlive()) {
+                instance.populateTelemetry();
+                Thread.sleep(2000);
+            }
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
 

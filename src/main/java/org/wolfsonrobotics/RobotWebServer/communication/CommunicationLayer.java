@@ -72,16 +72,22 @@ public class CommunicationLayer {
     public String[] getFields() {
         return Arrays.stream(instance.getClass().getDeclaredFields()).map(Field::getName).toArray(String[]::new);
     }
-    public CommunicationLayer getField(String fieldName) throws NoSuchFieldException, IllegalAccessException {
+    public Object getField(String fieldName) throws NoSuchFieldException, IllegalAccessException {
         Field field = instance.getClass().getDeclaredField(fieldName);
         field.setAccessible(true);
-        return new CommunicationLayer(field.get(instance));
+        return field.get(instance);
+    }
+    public CommunicationLayer getFieldLayer(String fieldName) throws NoSuchFieldException, IllegalAccessException {
+        return new CommunicationLayer(getField(fieldName));
     }
 
 
     public Object call(String inputName, MethodArg... args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method method = instance.getClass().getMethod(inputName, Arrays.stream(args).map(MethodArg::type).toArray(Class[]::new));
         return method.invoke(instance, Arrays.stream(args).map(MethodArg::arg).toArray());
+    }
+    public Object call(String inputName) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        return call(inputName, new MethodArg[] {});
     }
 
 
