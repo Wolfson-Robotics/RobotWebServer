@@ -34,7 +34,7 @@ public class RobotWebServer extends NanoHTTPD {
     private final int port;
 
     private NanoWSD webSocket;
-    private final CommunicationLayer comLayer;
+    private final CommunicationLayer commLayer;
     private final FileExplorer robotStorage;
 
 
@@ -42,11 +42,11 @@ public class RobotWebServer extends NanoHTTPD {
     private final Map<String, Class<? extends FileAPI>> fileAPIMap = new HashMap<>();
 
 
-    public RobotWebServer(int port, String webroot, CommunicationLayer comLayer, String storage) {
+    public RobotWebServer(int port, String webroot, CommunicationLayer commLayer, String storage) {
         super(port);
         this.port = port;
         this.webroot = webroot;
-        this.comLayer = comLayer;
+        this.commLayer = commLayer;
 
         FileExplorer robotStorage;
         try {
@@ -73,7 +73,7 @@ public class RobotWebServer extends NanoHTTPD {
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
         System.out.println("Web Server running at: http://localhost:" + this.port);
 
-        this.webSocket = new HandleSocket(9090);
+        this.webSocket = new HandleSocket(9090, this.commLayer);
         try {
             this.webSocket.start(60000);
         } catch (IOException e) {
@@ -205,7 +205,7 @@ public class RobotWebServer extends NanoHTTPD {
 
 
         Map<Map<String, ? extends Class<?>>, Object> mapConstructors = new HashMap<>();
-        mapConstructors.put(robotAPIMap, this.comLayer);
+        mapConstructors.put(robotAPIMap, this.commLayer);
         mapConstructors.put(fileAPIMap, this.robotStorage);
 
         mapConstructors.forEach((apiMap, arg) ->

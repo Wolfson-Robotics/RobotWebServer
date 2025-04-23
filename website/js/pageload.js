@@ -1,6 +1,8 @@
 fetch("http://localhost:8080/robot/config.json")
     .then(response => response.json())
     .then(data => {
+        window.config = data;
+
         const pageTitle = document.getElementById("page-title");
         pageTitle.innerHTML = "FTC-" + data.team_number + " Robot Web Dashboard";
         document.title = "FTC-" + data.team_number + " Robot Web Dashboard";
@@ -16,6 +18,25 @@ window.callAPI = (endpoint, payload) => {
         },
         body: typeof payload === "string" ? payload : JSON.stringify(payload),
     });
+};
+
+window.startSocket = (endpoint) => new WebSocket(`ws://localhost:9090/${endpoint}`);
+window.aliveSocket = (socket, message, opName = String(Math.random()), timeout = 5000) => {
+
+    if (!socket.running) socket.running = {};
+    socket.running[opName] = window.setInterval(() => {
+        if (typeof message === "function") {
+            message();
+            return;
+        }
+        socket.send(message);
+    }, timeout);
+    return opName;
+
+};
+window.stopAliveSocket = (socket, opName) => {
+    window.clearInterval(socket.running[opName]);
+    delete socket.running[opName];
 };
 
 
@@ -146,12 +167,12 @@ HTMLElement.prototype.hasClass = function(clazz) { return this.classList.contain
 
 // Custom constructor helpful for our purposes
 // No arrow functions to preserve this for element operations
-document.elemOf = function(tag, info) {
+document.elemOf = (tag, info) => {
     const elem = document.createElement(tag);
-    Object.entries(info).forEach(([prop, propVal]) => elem[prop] = propVal);
+    if (info) Object.entries(info).forEach(([prop, propVal]) => elem[prop] = propVal);
     return elem;
 };
-document.ofId = function(tag, id) {
+document.ofId = (tag, id) => {
     return document.elemOf(tag, { id: id });
 };
 document.ofClass = (tag, className) => document.elemOf(tag, { className: className });

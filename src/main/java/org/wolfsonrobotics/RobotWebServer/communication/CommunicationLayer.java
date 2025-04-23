@@ -1,5 +1,6 @@
 package org.wolfsonrobotics.RobotWebServer.communication;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -41,6 +42,13 @@ public class CommunicationLayer {
                 .toArray(Method[]::new);
     }
 
+    public String getName() {
+        return instance.getClass().getSimpleName();
+    }
+
+    public boolean instanceOf(Class<?> clazz) {
+        return instance.getClass().equals(clazz);
+    }
 
     private Method[] getInstanceMethods() {
         return Arrays.stream(instance.getClass().getDeclaredMethods())
@@ -61,10 +69,19 @@ public class CommunicationLayer {
 
     }
 
+    public String[] getFields() {
+        return Arrays.stream(instance.getClass().getDeclaredFields()).map(Field::getName).toArray(String[]::new);
+    }
+    public CommunicationLayer getField(String fieldName) throws NoSuchFieldException, IllegalAccessException {
+        Field field = instance.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        return new CommunicationLayer(field.get(instance));
+    }
 
-    public void call(String inputName, MethodArg... args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+    public Object call(String inputName, MethodArg... args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method method = instance.getClass().getMethod(inputName, Arrays.stream(args).map(MethodArg::type).toArray(Class[]::new));
-        method.invoke(instance, Arrays.stream(args).map(MethodArg::arg).toArray());
+        return method.invoke(instance, Arrays.stream(args).map(MethodArg::arg).toArray());
     }
 
 

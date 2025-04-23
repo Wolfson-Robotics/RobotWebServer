@@ -11,6 +11,11 @@ public class FakeRobot {
     public int locationY = 0;
     public double armPosY = 0.3;
 
+    private DcMotorEx motor1 = new DcMotorEx();
+    private DcMotorEx motor2 = new DcMotorEx();
+    private Servo servo1 = new Servo();
+    private Servo servo2 = new Servo();
+
     public void moveBot(int plusX, int plusY) {
         locationX += plusX;
         locationY += plusY;

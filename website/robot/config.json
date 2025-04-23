@@ -1,4 +1,15 @@
 {
   "team_name": "Wolfson Robotics",
-  "team_number": 19916
+  "team_number": 19916,
+  "robot_devices": {
+    "icons": {
+      "dcmotor": "motor.svg",
+      "dcmotorex": "motor.svg",
+      "servo": "servo.svg",
+      "unknown": "unknown.svg"
+    },
+    "icons_css": {
+      "servo": "width: 105%; height: auto;"
+    }
+  }
 }

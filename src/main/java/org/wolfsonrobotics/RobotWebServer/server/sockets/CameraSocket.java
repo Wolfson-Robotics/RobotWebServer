@@ -1,25 +1,23 @@
 package org.wolfsonrobotics.RobotWebServer.server.sockets;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfByte;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.wolfsonrobotics.RobotWebServer.fakerobot.FakeRobot;
-
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
 import nu.pattern.OpenCV;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
+import org.wolfsonrobotics.RobotWebServer.fakerobot.FakeRobot;
+
+import java.io.IOException;
 
 
 public class CameraSocket extends BaseSocket {
 
     private FakeRobot robot;
 
-    public CameraSocket(NanoHTTPD.IHTTPSession handshakeRequest) {
-        super(handshakeRequest);
+    public CameraSocket(NanoHTTPD.IHTTPSession handshakeRequest, CommunicationLayer commLayer) {
+        super(handshakeRequest, commLayer);
     }
 
     @Override
