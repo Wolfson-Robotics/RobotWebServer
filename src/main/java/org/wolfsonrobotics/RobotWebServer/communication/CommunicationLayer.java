@@ -89,6 +89,9 @@ public class CommunicationLayer {
     public Object call(String inputName) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         return call(inputName, new MethodArg[] {});
     }
+    public Object callNoThrows(String inputName) {
+        try { return call(inputName); } catch (Exception e) { return null; }
+    }
 
 
     @Deprecated

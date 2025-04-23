@@ -22,11 +22,14 @@ public abstract class BaseSocket extends WebSocket {
         this.commLayer = commLayer;
     }
 
+    protected void keepRunning(Runnable fn, long ms) {
+        ticker.scheduleAtFixedRate(fn, 0, ms, TimeUnit.MILLISECONDS);
+    }
     protected void keepRunning(Runnable fn) {
-        ticker.scheduleAtFixedRate(fn, 0, 1, TimeUnit.SECONDS);
+        keepRunning(fn, 1000);
     }
     protected void keepMessaging() {
-        this.keepRunning(() -> this.onMessage(null));
+        this.keepRunning(this::onMessage);
     }
 
 

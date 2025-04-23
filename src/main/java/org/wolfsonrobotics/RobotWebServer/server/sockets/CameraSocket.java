@@ -7,24 +7,21 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
-import org.wolfsonrobotics.RobotWebServer.fakerobot.FakeRobot;
 
 import java.io.IOException;
 
 
 public class CameraSocket extends BaseSocket {
 
-    private FakeRobot robot;
-
     public CameraSocket(NanoHTTPD.IHTTPSession handshakeRequest, CommunicationLayer commLayer) {
         super(handshakeRequest, commLayer);
     }
 
+    // Don't keep messaging so that the client can ensure synchronicity with the video feed (see camera_feed.js)
     @Override
     protected void onOpen() {
         super.onOpen();
         OpenCV.loadLocally();
-        this.robot = new FakeRobot();
     }
 
     // We want to make the updating of the camera feed only on message to ensure
@@ -32,9 +29,8 @@ public class CameraSocket extends BaseSocket {
     // concurrency doesn't really matter for our purposes
     @Override
     protected void onMessage(NanoWSD.WebSocketFrame message) {
-        super.onMessage(message);
 
-        Mat cameraFeed = robot.getCameraFeed();
+        Mat cameraFeed = (Mat) commLayer.callNoThrows("getCameraFeed");
         MatOfByte buffer = new MatOfByte();
         boolean success = Imgcodecs.imencode(".jpg", cameraFeed, buffer);
 

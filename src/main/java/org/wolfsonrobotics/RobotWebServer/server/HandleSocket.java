@@ -20,7 +20,6 @@ public class HandleSocket extends NanoWSD {
         this.socketMap.put("robot/camera_feed", CameraSocket.class);
         this.socketMap.put("robot/device_info", DeviceInfoSocket.class);
         this.socketMap.put("robot/telemetry", TelemetrySocket.class);
-        this.socketMap.put("dummy", DummySocket.class);
     }
     
     @Override
@@ -33,8 +32,12 @@ public class HandleSocket extends NanoWSD {
                 .map(Map.Entry::getValue)
                 .findFirst();
 
+        if (!socketType.isPresent()) {
+            return new DummySocket(handshake, commLayer);
+        }
+
         try {
-            return (socketType.isPresent() ? socketType.get() : socketMap.get("/dummy"))
+            return socketType.get()
                     .getConstructor(IHTTPSession.class, CommunicationLayer.class)
                     .newInstance(handshake, commLayer);
         } catch (Exception e) {

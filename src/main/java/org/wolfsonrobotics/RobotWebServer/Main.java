@@ -1,5 +1,6 @@
 package org.wolfsonrobotics.RobotWebServer;
 
+import nu.pattern.OpenCV;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 import org.wolfsonrobotics.RobotWebServer.fakerobot.FakeRobot;
 import org.wolfsonrobotics.RobotWebServer.server.RobotWebServer;
@@ -15,6 +16,7 @@ public class Main {
         String[] excludedMethods = { "getCameraFeed" };
 
         FakeRobot instance = new FakeRobot();
+
         RobotWebServer ws = new RobotWebServer(
                 8080,
                 "website/",
