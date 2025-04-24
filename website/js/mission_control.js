@@ -94,25 +94,34 @@
 
 
     missionControlLib.typeArg = (rArg) => {
-        rArg = rArg.toLowerCase().trim();
+        rArg = rArg.trim();
 
+        // Exclusively use rLArg to check for number modifiers irrespectivve of capitalization
+        const rLArg = rArg.toLowerCase().trim();
         if (rArg.startsWith("'") && rArg.endsWith("'")) {
             return new TypeAssoc("char", rArg.replaceAll("'", ""));
         }
         if (rArg.startsWith("\"") && rArg.endsWith("\"")) {
             return new TypeAssoc("String", rArg.replaceAll("\"", ""));
         }
-        if (rArg.endsWith("l") && missionControlLib.charCount(rArg, "l") === 1 && !isNaN(missionControlLib.parseInteger(rArg.split("l")[0]))) {
-            return new TypeAssoc("long", missionControlLib.parseInteger(rArg));
+        // isByte and parseByte are separated so that, if parseByte fails, we know that the error
+        // occurs because the byte is too small or big, and we can stop the function here as a result
+        // (For instance, if we have the byte 0xff, under a simple parseByt echeck, it would proceed
+        // to the float check and incorrectly pass as a float).
+        if (missionControlLib.isByte(rArg)) {
+            return new TypeAssoc(
+                !isNaN(missionControlLib.parseByte(rArg)) ? "byte" : "unknown",
+                rArg
+            );
         }
-        if (rArg.endsWith("f") && missionControlLib.charCount(rArg, "f") === 1 && !isNaN(Number.parseFloat(rArg.split("f")[0]))) {
+        if (rLArg.endsWith("l") && missionControlLib.charCount(rLArg, "l") === 1 && !isNaN(missionControlLib.parseInteger(rLArg.split("l")[0]))) {
+            return new TypeAssoc("long", missionControlLib.parseInteger(rLArg.replaceAll("l", "")));
+        }
+        if (rLArg.endsWith("f") && missionControlLib.charCount(rLArg, "f") === 1 && !isNaN(Number.parseFloat(rLArg.split("f")[0]))) {
             return new TypeAssoc("float", Number.parseFloat(rArg));
         }
-        if (rArg.endsWith("d") && missionControlLib.charCount(rArg, "d") === 1 && !isNaN(Number.parseFloat(rArg.split("d")[0]))) {
+        if (rLArg.endsWith("d") && missionControlLib.charCount(rLArg, "d") === 1 && !isNaN(Number.parseFloat(rLArg.split("d")[0]))) {
             return new TypeAssoc("double", Number.parseFloat(rArg));
-        }
-        if (!isNaN(missionControlLib.parseByte(rArg))) {
-            return new TypeAssoc("byte", rArg);
         }
         if (rArg === "true" || rArg === "false") {
             return new TypeAssoc("boolean", rArg === "true");
@@ -137,7 +146,7 @@
 
     missionControlLib.typeArgs = (rawStringArgs) => rawStringArgs.map(rArg => missionControlLib.typeArg(rArg));
 
-    missionControlLib.typesCompatible = (type, castedType) => type === castedType || missionControlLib.typeOverloads[type].find(qual => qual.type === castedType);
+    missionControlLib.typesCompatible = (arg, type, castedType) => type === castedType || missionControlLib.typeOverloads[type].find(qual => qual.type === castedType && qual.qualifies(arg));
 
 
     // Don't declare variables as a member of missionControlLib for encapsulation
@@ -148,7 +157,7 @@
             return;
         }
         variables.push(new Variable(name, type, value));
-    }
+    };
     missionControlLib.getVar = (name) => variables.find(variable => variable.name === name);
     missionControlLib.clearVars = () => variables = [];
 
@@ -195,7 +204,7 @@
                     typedScore[argIndex] = 0;
                     return;
                 }
-                const typeCast = missionControlLib.typesCompatible(callArgType, supportedArgType);
+                const typeCast = missionControlLib.typesCompatible(callArg, callArgType, supportedArgType);
                 // If an overload for the type has been found that is compatible with the method arg
                 if (typeCast) {
                     const typeCastIndex = missionControlLib.typeOverloads[callArgType].indexOf(typeCast);
@@ -257,9 +266,14 @@
     }
 
     // Only accepts bytes of format 0xff
+    // See typeArg for why these two operations are separate
+    missionControlLib.isByte = (input) => {
+        input = input.trim();
+        return /^[+-]?0[xX][0-9A-Fa-f]{1,2}$/.test(input);
+    }
     missionControlLib.parseByte = (input) => {
         input = input.trim();
-        if (!/^[+-]?0[xX][0-9A-Fa-f]{1,2}$/.test(input)) {
+        if (!missionControlLib.isByte(input)) {
             return NaN;
         }
         const num = Number(input);

@@ -49,8 +49,11 @@ export function run(missionLib) {
 
         const val = comps.join(" ");
         const valVar = missionLib.typeArg(val);
-        if (!missionLib.typesCompatible(valVar.type, varType)) {
-            return err(line, lineNum, `Implied type of the value is incompatible with the declared type ${varType}.`)
+        if (valVar.type === "unknown") {
+            return err(line, lineNum, `Implied type of the value is unknown.${["byte","short"].includes(varType) ? ` Perhaps the value ${valVar.value} exceeds the bounds for type ${varType}?` : ``}`);
+        }
+        if (!missionLib.typesCompatible(val, valVar.type, varType)) {
+            return err(line, lineNum, `Implied type of the value, ${valVar.type}, is incompatible with the declared type, ${varType}.`)
         }
 
         if (missionLib.getVar(name)) {
@@ -104,7 +107,6 @@ export function run(missionLib) {
 
 
         const methodCallArgMap = missionLib.typeArgs(methodCallSpecs[0].split(",").map(v => v.trim()).filter(v => v !== ""));
-        const methodCallArgs = methodCallArgMap.map(arg => arg.value);
         const methodCallArgTypes = methodCallArgMap.map(arg => arg.type);
 
         const unknownArgs = methodCallArgMap.filter(arg => arg.type === "unknown").map(arg => arg.value);

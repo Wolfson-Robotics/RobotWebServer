@@ -1,9 +1,21 @@
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:400,700&display=swap");
+
 /*
 General
  */
 h1, h2, h3 {
     text-align: center;
+    font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif
 }
+button, input[type="submit"] {
+    font-family: Helvetica, Arial, sans-serif;
+}
+button {
+    font-weight: bold;
+    font-size: 14px;
+    padding: 1.2% 3.5%;
+}
+
 svg {
     background: transparent;
 }
@@ -16,6 +28,12 @@ svg {
 .dual > div {
     flex: 0 0 50%;
     box-sizing: border-box;
+}
+.dual > .right {
+    margin-left: auto;
+}
+.dual > .left {
+    margin-right: auto;
 }
 
 /*
@@ -57,10 +75,11 @@ Robot devices
     list-style-type: none;
     padding: 0;
     margin: 0;
+    margin-left: 2.5%;
 }
 li.robot-device {
     flex: 1 1 40%;
-    max-width: 10%;
+    max-width: 25%;
     min-width: 100px;
     justify-content: center;
     /*margin: 0 15px;*/
@@ -84,7 +103,11 @@ li.robot-device {
     height: auto;
     margin-bottom: 20px;
 }
+.device-info span, .device-info small {
+    font-family: "Helvetica Neue", sans-serif;
+}
 .device-info span {
+    font-size: 95%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: clip;

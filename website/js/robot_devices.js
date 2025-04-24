@@ -10,7 +10,7 @@
             const exists = document.querySelector(`li#${device.name}.robot-device`);
             const deviceElem = exists ??
                 document.elemOf("li", { className: "robot-device", id: device.name });
-            const deviceInfoList = exists ? exists.querySelector("div.device-info")
+            const deviceInfoList = exists ? exists.querySelector(".device-info")
                 : document.ofClass("div", "device-info");
 
             const type = device.type.toLowerCase().trim();
@@ -41,6 +41,7 @@
                 } else {
                     deviceInfoList.appendChild(document.elemOf("span", {
                         id: fieldId,
+                        style: "margin-right: auto !important;",
                         innerHTML: innerHTML
                     }));
                 }
