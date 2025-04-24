@@ -1,12 +1,39 @@
+(async() => {
+
+
+function pageload() {
+    const jsToLoad = ["mission_control", "robot_devices", "telemetry", "file_manager", "camera_feed"];
+    jsToLoad.forEach(js => document.body.appendChild(document.elemOf("script", {
+        src: "/js/" + js + ".js",
+        type: "text/javascript"
+    })));
+}
+
+
 fetch("http://localhost:8080/config.json")
-    .then(response => response.json())
+    .then(req => {
+        if (!req.ok) {
+            throw new Error(`Config.json not found, responded with ${req.status}.`);
+        }
+        return req;
+    })
+    .then(res => res.json())
+    .catch(err => {
+        alert("Failed to load config.json. Check the console for more details. Unexpected issues may occur.");
+        console.error(err);
+        pageload();
+    })
     .then(data => {
         window.config = data;
 
         const pageTitle = document.getElementById("page-title");
         pageTitle.innerHTML = "FTC-" + data.team_number + " Robot Web Dashboard";
         document.title = "FTC-" + data.team_number + " Robot Web Dashboard";
+
+        pageload();
     });
+
+
 
 window.fixPath = (path) => path.replace(/\/+/g, "/");
 window.getAPI = (endpoint) => fetch(`${window.location.origin}/${fixPath(endpoint)}`);
@@ -19,6 +46,7 @@ window.callAPI = (endpoint, payload) => {
         body: typeof payload === "string" ? payload : JSON.stringify(payload),
     });
 };
+
 
 window.startSocket = (endpoint) => new WebSocket(`ws://localhost:9090/${endpoint}`);
 window.aliveSocket = (socket, message = "ping", opName = String(Math.random()), timeout = 5000) => {
@@ -38,6 +66,10 @@ window.stopAliveSocket = (socket, opName) => {
     window.clearInterval(socket.running[opName]);
     delete socket.running[opName];
 };
+window.persistSocket = (socket, callable) => {
+    socket.onerror = callable;
+};
+
 
 
 window.getHumanDate = () => {
@@ -185,3 +217,8 @@ window.reverseJSON = (json) => {
     });
     return reversed;
 }
+
+
+
+
+})();

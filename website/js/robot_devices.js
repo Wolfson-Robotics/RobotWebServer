@@ -1,4 +1,4 @@
-(async() => {
+(async function robot_devices() {
 
     const root = document.getElementById("robot-devices");
     const deviceInfoSocket = window.startSocket("/robot/device_info");
@@ -56,5 +56,6 @@
     };
 
     window.aliveSocket(deviceInfoSocket);
+    window.persistSocket(deviceInfoSocket);
 
 })();

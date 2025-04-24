@@ -11,8 +11,7 @@
         // We want to send to get feed instead of feed being sent to us to ensure synchronicity
         cameraSocket.onopen = () => {
             cameraSocket.send("req_full_image");
-        }
-
+        };
         cameraSocket.onmessage = async(e) => {
 
             const arrayBuffer = e.data;
@@ -20,6 +19,7 @@
             cameraSocket.send("");
 
         };
+        window.persistSocket(cameraSocket, init);
 
         feed.style.display = "block";
         return cameraSocket;
