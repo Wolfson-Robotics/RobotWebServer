@@ -16,12 +16,11 @@ export function run(missionLib) {
 
             })
         );
-        const methodTyped = missionLib.locateMethod(window.robotMethods[methodName], typedArgs);
 
 
         const callPayload = {
             name: methodName,
-            args: typedArgs.keyMap((k, i) => methodTyped[i])
+            args: missionLib.locateMethod(window.robotMethods[methodName], typedArgs)
         };
         console.log(callPayload);
 

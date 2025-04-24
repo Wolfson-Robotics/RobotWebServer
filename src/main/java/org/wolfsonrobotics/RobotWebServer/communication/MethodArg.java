@@ -41,6 +41,10 @@ public class MethodArg {
                 argType = byte.class;
                 castedArg = numArg.byteValue();
                 break;
+            case "boolean":
+                argType = boolean.class;
+                castedArg = ((Boolean) arg).booleanValue();
+                break;
             case "char":
                 argType = char.class;
                 castedArg = (char) numArg.intValue();

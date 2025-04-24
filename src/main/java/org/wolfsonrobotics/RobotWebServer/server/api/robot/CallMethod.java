@@ -44,10 +44,8 @@ public class CallMethod extends RobotAPI {
         JSONArray args = body.getJSONArray("args");
         MethodArg[] mArgs = IntStream.range(0, args.length())
                 .mapToObj(args::getJSONObject)
-                .map(obj -> {
-                    String type = obj.keys().next();
-                    return MethodArg.of(type, obj.get(type));
-                }).toArray(MethodArg[]::new);
+                .map(obj -> MethodArg.of(obj.getString("type"), obj.get("value")))
+                .toArray(MethodArg[]::new);
 
         try {
             this.comLayer.call(body.getString("name"), mArgs);

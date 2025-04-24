@@ -41,6 +41,10 @@ public class FakeRobot {
         armPosY = 0.6;
     }
 
+    public void armDirection(boolean up) {
+        armPosY = up ? 0.9 : 0.1;
+    }
+
     // For testing with the code editor
     public void stringTest(String test) {
         System.out.println(test);

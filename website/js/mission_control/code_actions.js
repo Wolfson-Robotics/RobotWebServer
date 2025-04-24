@@ -45,9 +45,10 @@ export function run(controlLib) {
             if (pause) {
                 await pause.then(() => pause = undefined);
             }
+            const info = methodsToRun[index];
             if (!stop) {
-                highlightLine(index);
-                await controlLib.callMethod(methodsToRun[index]).catch(err => {
+                highlightLine(info[0]);
+                await controlLib.callMethod(info[1]).catch(err => {
                     stop = true;
                     console.error(err);
                     alert(`An error occurred calling method ${method.name} at line ${index + 1}. Please see the console for more details.`);

@@ -29,7 +29,7 @@
         type;
 
         constructor(type, qualifier) {
-            this.qualifier = qualifier ?? function() { return true; };
+            this.qualifier = qualifier ?? function() { return true };
             this.type = type;
         }
 
@@ -40,6 +40,35 @@
 
         static of(...types) {
             return types.map(type => new TypeQualifier(type));
+        }
+
+    }
+
+    class TypeAssoc {
+        type;
+        value;
+        constructor(type, value) {
+            this.type = type;
+            this.value = value;
+        }
+
+        asReq() {
+            return {
+                [type]: value
+            }
+        }
+    }
+
+    class Variable {
+
+        name;
+        type;
+        value;
+
+        constructor(name, type, value) {
+            this.name = name;
+            this.type = type;
+            this.value = value;
         }
 
     }
@@ -63,58 +92,65 @@
         "char": TypeQualifier.of("int", "double", "float", "long")
     }
 
-    missionControlLib.typeArgs = (rawStringArgs) => {
 
-        const finalArgs = [];
-        rawStringArgs.forEach((rArg, rIndex) => {
+    missionControlLib.typeArg = (rArg) => {
+        rArg = rArg.toLowerCase().trim();
 
-            const rLArg = rArg.toLowerCase().trim();
-            if (rArg.startsWith("'") && rArg.endsWith("'")) {
-                finalArgs[rIndex] = {"char": rArg.replaceAll("'", "")};
-                return;
-            }
-            if (rArg.startsWith("\"") && rArg.endsWith("\"")) {
-                finalArgs[rIndex] = {"String": rArg.replaceAll("\"", "")};
-                return;
-            }
-            if (rLArg.endsWith("l") && missionControlLib.charCount(rLArg, "l") === 1 && !isNaN(missionControlLib.parseInteger(rLArg.split("l")[0]))) {
-                finalArgs[rIndex] = {"long": missionControlLib.parseInteger(rArg)};
-                return;
-            }
-            if (rLArg.endsWith("f") && missionControlLib.charCount(rLArg, "f") === 1 && !isNaN(Number.parseFloat(rLArg.split("f")[0]))) {
-                finalArgs[rIndex] = {"float": Number.parseFloat(rArg)};
-                return;
-            }
-            if (rLArg.endsWith("d") && missionControlLib.charCount(rLArg, "d") === 1 && !isNaN(Number.parseFloat(rLArg.split("d")[0]))) {
-                finalArgs[rIndex] = {"double": Number.parseFloat(rArg)};
-                return;
-            }
-            if (!isNaN(missionControlLib.parseByte(rArg))) {
-                finalArgs[rIndex] = {"byte": rArg};
-                return;
-            }
-            // TODO: Boolean from variable conditional operation
-            if (rArg === "true" || rArg === "false") {
-                finalArgs[rIndex] = {"boolean": rArg};
-                return;
-            }
-            if (!isNaN(missionControlLib.parseInteger(rArg))) {
-                finalArgs[rIndex] = {"int": missionControlLib.parseInteger(rArg)};
-                return;
-            }
-            if (!isNaN(missionControlLib.parseDouble(rArg))) {
-                finalArgs[rIndex] = {"double": Number.parseFloat(rArg)};
-                return;
-            }
-            // TODO: Variable handling
+        if (rArg.startsWith("'") && rArg.endsWith("'")) {
+            return new TypeAssoc("char", rArg.replaceAll("'", ""));
+        }
+        if (rArg.startsWith("\"") && rArg.endsWith("\"")) {
+            return new TypeAssoc("String", rArg.replaceAll("\"", ""));
+        }
+        if (rArg.endsWith("l") && missionControlLib.charCount(rArg, "l") === 1 && !isNaN(missionControlLib.parseInteger(rArg.split("l")[0]))) {
+            return new TypeAssoc("long", missionControlLib.parseInteger(rArg));
+        }
+        if (rArg.endsWith("f") && missionControlLib.charCount(rArg, "f") === 1 && !isNaN(Number.parseFloat(rArg.split("f")[0]))) {
+            return new TypeAssoc("float", Number.parseFloat(rArg));
+        }
+        if (rArg.endsWith("d") && missionControlLib.charCount(rArg, "d") === 1 && !isNaN(Number.parseFloat(rArg.split("d")[0]))) {
+            return new TypeAssoc("double", Number.parseFloat(rArg));
+        }
+        if (!isNaN(missionControlLib.parseByte(rArg))) {
+            return new TypeAssoc("byte", rArg);
+        }
+        if (rArg === "true" || rArg === "false") {
+            return new TypeAssoc("boolean", rArg === "true");
+        }
+        if (!isNaN(missionControlLib.parseInteger(rArg))) {
+            return new TypeAssoc("int", missionControlLib.parseInteger(rArg));
+        }
+        if (!isNaN(missionControlLib.parseDouble(rArg))) {
+            return new TypeAssoc("double", Number.parseFloat(rArg));
+        }
 
-            finalArgs[rIndex] = {"unknown": rArg};
+        // Account for inversions of variable expressions
+        const invCount = rArg.count("!");
+        const foundVar = missionControlLib.getVar(rArg.replaceAll("!", ""));
+        if (foundVar) {
+            return new TypeAssoc(foundVar.type, foundVar.type === "boolean" ? (invCount % 2 === 0 ? foundVar.value : !foundVar.value) : foundVar.value);
+        }
+        return new TypeAssoc("unknown", rArg);
+    }
 
 
-        });
-        return finalArgs;
 
-    };
+    missionControlLib.typeArgs = (rawStringArgs) => rawStringArgs.map(rArg => missionControlLib.typeArg(rArg));
+
+    missionControlLib.typesCompatible = (type, castedType) => type === castedType || missionControlLib.typeOverloads[type].find(qual => qual.type === castedType);
+
+
+    // Don't declare variables as a member of missionControlLib for encapsulation
+    let variables = [];
+    missionControlLib.declareVar = (name, type, value) => {
+        if (type instanceof TypeAssoc) {
+            missionControlLib.declareVar(name, type.type, type.value);
+            return;
+        }
+        variables.push(new Variable(name, type, value));
+    }
+    missionControlLib.getVar = (name) => variables.find(variable => variable.name === name);
+    missionControlLib.clearVars = () => variables = [];
 
 
     missionControlLib.locateMethod = (methodArgs, typedCallArgs) => {
@@ -150,20 +186,20 @@
                 return;
             }
             supportedArgs.forEach(((supportedArgType, argIndex) => {
-                const callArg = Object.values(typedCallArgs[argIndex])[0];
-                const callArgType = Object.keys(typedCallArgs[argIndex])[0];
+                const callArg = typedCallArgs[argIndex].value;
+                const callArgType = typedCallArgs[argIndex].type;
 
                 // If the type itself is already compatible with the method arg type
                 if (callArgType === supportedArgType) {
-                    typedArgs[argIndex] = Object.of(supportedArgType, callArg);
+                    typedArgs[argIndex] = new TypeAssoc(supportedArgType, callArg);
                     typedScore[argIndex] = 0;
                     return;
                 }
-                const typeCast = missionControlLib.typeOverloads[callArgType].find(qual => qual.qualifies(callArg));
+                const typeCast = missionControlLib.typesCompatible(callArgType, supportedArgType);
                 // If an overload for the type has been found that is compatible with the method arg
                 if (typeCast) {
                     const typeCastIndex = missionControlLib.typeOverloads[callArgType].indexOf(typeCast);
-                    typedArgs[argIndex] = Object.of(supportedArgType, callArg);
+                    typedArgs[argIndex] = new TypeAssoc(supportedArgType, callArg);
                     typedScore[argIndex] = typeCastIndex;
                     return;
                 }
