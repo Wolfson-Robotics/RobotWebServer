@@ -4,6 +4,7 @@ import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import fi.iki.elonen.NanoWSD;
 import fi.iki.elonen.NanoWSD.WebSocket;
 import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
+import org.wolfsonrobotics.RobotWebServer.ServerConfig;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 
 import java.io.IOException;
@@ -26,7 +27,7 @@ public abstract class BaseSocket extends WebSocket {
         ticker.scheduleAtFixedRate(fn, 0, ms, TimeUnit.MILLISECONDS);
     }
     protected void keepRunning(Runnable fn) {
-        keepRunning(fn, 1000);
+        keepRunning(fn, ServerConfig.DEFAULT_SOCKET_MSG_FREQUENCY);
     }
     protected void keepMessaging() {
         this.keepRunning(this::onMessage);
@@ -78,7 +79,7 @@ public abstract class BaseSocket extends WebSocket {
     protected void onException(IOException exception) {
 
         if (exception instanceof SocketTimeoutException) {
-            System.out.println("Websocked timed out");
+            System.out.println("Websocket timed out");
             try {
                 close(NanoWSD.WebSocketFrame.CloseCode.GoingAway, "Timed out", false);
             } catch (IOException e) {

@@ -5,7 +5,7 @@
 
     function init() {
 
-        const cameraSocket = window.startSocket("/robot/camera_feed");
+        const cameraSocket = window.startSocket(window.getEndpoint("cameraFeed"));
         cameraSocket.binaryType = "arraybuffer";
 
         // We want to send to get feed instead of feed being sent to us to ensure synchronicity
@@ -36,9 +36,7 @@
     let shown = window.localStorage.getItem("camera_feed_shown") === "true" ?? true;
     function update() {
         window.localStorage.setItem("camera_feed_shown", shown);
-        if (shown) {
-            currSocket = init();
-        }
+        if (shown) currSocket = init();
         if (!shown) stop(currSocket);
     }
 

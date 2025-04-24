@@ -10,18 +10,11 @@ public class Main {
 
     public static void main(String[] args) {
 
-        // TODO (Reminder): When porting turn this into Environment.getExternalStorageDirectory().getPath()
-        String filePath = "";
-        String[] excludedMethods = { "getCameraFeed" };
-
         FakeRobot instance = new FakeRobot();
 
         RobotWebServer ws = new RobotWebServer(
-                8080,
-                "website/",
-                new CommunicationLayer(instance, null, excludedMethods),
-                filePath
-                );
+                new CommunicationLayer(instance, ServerConfig.COMM_METHODS, ServerConfig.EXCLUDED_COMM_METHODS)
+        );
         try {
             ws.start();
         } catch (IOException e) {
@@ -33,7 +26,7 @@ public class Main {
         }
 
         // Loop to keep things updated for the FakeRobot for demonstration purposes.
-        // Is not necessary once ported to robot code
+        // TODO: Is not necessary once ported to robot code
         try {
             while (ws.isAlive()) {
                 instance.populateTelemetry();

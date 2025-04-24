@@ -3,19 +3,12 @@ package org.wolfsonrobotics.RobotWebServer.server;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
 import org.json.JSONObject;
+import org.wolfsonrobotics.RobotWebServer.ServerConfig;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 import org.wolfsonrobotics.RobotWebServer.fakerobot.FileExplorer;
 import org.wolfsonrobotics.RobotWebServer.server.api.BaseAPI;
-import org.wolfsonrobotics.RobotWebServer.server.api.FileAPI;
-import org.wolfsonrobotics.RobotWebServer.server.api.RobotAPI;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.APIException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.ExceptionWrapper;
-import org.wolfsonrobotics.RobotWebServer.server.api.file.DirectoryAction;
-import org.wolfsonrobotics.RobotWebServer.server.api.file.FileAction;
-import org.wolfsonrobotics.RobotWebServer.server.api.file.Listing;
-import org.wolfsonrobotics.RobotWebServer.server.api.robot.AllMethods;
-import org.wolfsonrobotics.RobotWebServer.server.api.robot.CallMethod;
-import org.wolfsonrobotics.RobotWebServer.server.api.robot.CameraFeed;
 
 import java.io.*;
 import java.net.URI;
@@ -30,52 +23,37 @@ import java.util.stream.Collectors;
 
 public class RobotWebServer extends NanoHTTPD {
 
-    private final String webroot;
-    private final int port;
 
     private NanoWSD webSocket;
     private final CommunicationLayer commLayer;
     private final FileExplorer robotStorage;
 
 
-    private final Map<String, Class<? extends RobotAPI>> robotAPIMap = new HashMap<>();
-    private final Map<String, Class<? extends FileAPI>> fileAPIMap = new HashMap<>();
 
-
-    public RobotWebServer(int port, String webroot, CommunicationLayer commLayer, String storage) {
-        super(port);
-        this.port = port;
-        this.webroot = webroot;
+    public RobotWebServer(CommunicationLayer commLayer) {
+        super(ServerConfig.PORT);
         this.commLayer = commLayer;
 
         FileExplorer robotStorage;
         try {
-            robotStorage = new FileExplorer(storage);
+            robotStorage = new FileExplorer(ServerConfig.CONTROL_HUB_STORAGE);
         } catch (IOException e) {
             robotStorage = null;
             System.out.println("WARNING: An error occurred instantiating the storage interface");
         }
         this.robotStorage = robotStorage;
 
-        // Construct map since Map.ofEntries is not supported in Java 8
-        this.robotAPIMap.put("/robot/all_methods", AllMethods.class);
-        this.robotAPIMap.put("/robot/call_method", CallMethod.class);
-        this.robotAPIMap.put("/robot/camera_feed", CameraFeed.class);
-
-        this.fileAPIMap.put("/file/listing", Listing.class);
-        this.fileAPIMap.put("/file/file_operation", FileAction.class);
-        this.fileAPIMap.put("/file/directory_operation", DirectoryAction.class);
     }
 
 
 
     public void start() throws IOException {
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
-        System.out.println("Web Server running at: http://localhost:" + this.port);
+        System.out.println("Web Server running at: http://localhost:" + ServerConfig.PORT);
 
-        this.webSocket = new HandleSocket(9090, this.commLayer);
+        this.webSocket = new HandleSocket(ServerConfig.SOCKET_PORT, this.commLayer);
         try {
-            this.webSocket.start(60000);
+            this.webSocket.start(ServerConfig.SOCKET_START_TIMEOUT);
         } catch (IOException e) {
             System.out.println("Could not start websocket.");
             e.printStackTrace();
@@ -122,7 +100,7 @@ public class RobotWebServer extends NanoHTTPD {
         //session.getQueryParameterString()
 
         String uri = session.getUri();
-        File fileToServe = new File(webroot + uri);
+        File fileToServe = new File(ServerConfig.WEBROOT + uri);
 
         // clean urls by auto-routing to index.html
         if (fileToServe.isDirectory()) {
@@ -205,8 +183,8 @@ public class RobotWebServer extends NanoHTTPD {
 
 
         Map<Map<String, ? extends Class<?>>, Object> mapConstructors = new HashMap<>();
-        mapConstructors.put(robotAPIMap, this.commLayer);
-        mapConstructors.put(fileAPIMap, this.robotStorage);
+        mapConstructors.put(ServerConfig.robotAPIMap, this.commLayer);
+        mapConstructors.put(ServerConfig.fileAPIMap, this.robotStorage);
 
         mapConstructors.forEach((apiMap, arg) ->
             apiMap.entrySet().stream()
@@ -222,7 +200,7 @@ public class RobotWebServer extends NanoHTTPD {
                                 output.append(message);
                                 status.set(Response.Status.OK);
                                 mimeType.setLength(0);
-                                mimeType.append(handler.responseType);
+                                mimeType.append(handler.getResponseType());
                             } else { output.flush(); }
                         } catch (APIException e) {
                             output.append(e.getMessage());

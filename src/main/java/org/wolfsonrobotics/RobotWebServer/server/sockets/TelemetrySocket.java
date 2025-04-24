@@ -2,6 +2,7 @@ package org.wolfsonrobotics.RobotWebServer.server.sockets;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
+import org.wolfsonrobotics.RobotWebServer.ServerConfig;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class TelemetrySocket extends BaseSocket {
     public void onOpen() {
         super.onOpen();
         try {
-            this.telemetry = commLayer.getFieldLayer("telemetry");
+            this.telemetry = commLayer.getFieldLayer(ServerConfig.TELEMETRY_FIELD);
         } catch (NoSuchFieldException | IllegalAccessException e) {
             this.closeError();
             return;

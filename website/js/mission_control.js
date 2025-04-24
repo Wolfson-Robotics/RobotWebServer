@@ -16,7 +16,7 @@
         document.head.appendChild(script);
     }
 
-    const amRES = await window.getAPI("/robot/all_methods").then(res => res.json());
+    const amRES = await window.getAPI(window.getEndpoint("allMethods")).then(res => res.json());
     if (amRES.error) {
         alert("An error occurred fetching the robot methods. Details:\n" + amRES.error);
         return;
@@ -245,11 +245,10 @@
         return isNaN(num) ? NaN : num;
     }
 
-    missionControlLib.callMethod = callPayload => window.callAPI("/robot/call_method", callPayload);
+    missionControlLib.callMethod = callPayload => window.callAPI(window.getEndpoint("callMethod"), callPayload);
 
 
-    const scriptsToLoad = ["code_editor.js", "code_buttons.js"];
-    scriptsToLoad.forEach(script => import("/js/mission_control/" + script).then(module => module.run(missionControlLib)));
+    window.config.missionControl.modules.forEach(js => import(`/js/mission_control/${js}.js`).then(module => module.run(missionControlLib)));
     // loadScriptAsync("/js/mission_control/code_editor.js");
     // loadScriptAsync("/js/mission_control/code_buttons.js");
 

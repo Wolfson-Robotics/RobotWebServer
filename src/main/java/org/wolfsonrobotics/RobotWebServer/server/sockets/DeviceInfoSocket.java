@@ -4,35 +4,21 @@ import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.wolfsonrobotics.RobotWebServer.ServerConfig;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
-import org.wolfsonrobotics.RobotWebServer.fakerobot.DcMotorEx;
 import org.wolfsonrobotics.RobotWebServer.fakerobot.HardwareDevice;
-import org.wolfsonrobotics.RobotWebServer.fakerobot.Servo;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.RobotException;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 public class DeviceInfoSocket extends BaseSocket {
 
 
-    private final Map<Class<? extends HardwareDevice>, Map<String, String>> infoProtocol = new HashMap<>();
-
-
     public DeviceInfoSocket(NanoHTTPD.IHTTPSession handshakeRequest, CommunicationLayer commLayer) {
         super(handshakeRequest, commLayer);
-
-        Map<String, String> dcMotorHandler = new HashMap<>();
-        dcMotorHandler.put("Power", "getPower");
-        dcMotorHandler.put("Position", "getPosition");
-        this.infoProtocol.put(DcMotorEx.class, dcMotorHandler);
-
-        Map<String, String> servoHandler = new HashMap<>();
-        servoHandler.put("Position", "getPosition");
-        this.infoProtocol.put(Servo.class, servoHandler);
     }
 
     @Override
@@ -55,7 +41,7 @@ public class DeviceInfoSocket extends BaseSocket {
                     throw new RobotException(e);
                 }
 
-                Optional<Class<? extends HardwareDevice>> compType = infoProtocol.keySet().stream().filter(comp::instanceOf).findFirst();
+                Optional<Class<? extends HardwareDevice>> compType = ServerConfig.deviceInfoMap.keySet().stream().filter(comp::instanceOf).findFirst();
                 if (!compType.isPresent()) {
                     continue;
                 }
@@ -65,7 +51,7 @@ public class DeviceInfoSocket extends BaseSocket {
                 compInfo.put("type", comp.getName());
                 try {
                     // For loop instead of forEach to catch exceptions
-                    for (Map.Entry<String, String> entry : infoProtocol.get(compType.get()).entrySet()) {
+                    for (Map.Entry<String, String> entry : ServerConfig.deviceInfoMap.get(compType.get()).entrySet()) {
                         compInfo.put(entry.getKey(), comp.call(entry.getValue()));
                     }
                 } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {

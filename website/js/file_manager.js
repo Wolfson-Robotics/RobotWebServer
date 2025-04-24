@@ -21,13 +21,13 @@
 
     async function getDirectoryListing(path) {
         return commonAPIHandle(
-            fetch(`/file/listing?path=${encodeURIComponent(path)}`),
+            fetch(`${window.getEndpoint("fileListing")}?path=${encodeURIComponent(path)}`),
             (err) => commonCatch(err, "listing", path)
         );
     }
 
     async function getFile(path) {
-        return window.callAPI("/file/file_operation", { action: "get", path: path })
+        return window.callAPI(`${window.fileManager.fileEndpointPath}/file_operation`, { action: "get", path: path })
             .catch(err => commonCatch(err, "get", path))
             .then(res => res.text())
             .catch(err => commonCatch(err, "get", path));
@@ -35,7 +35,7 @@
 
     async function commonOperation(endpoint, action, data) {
         return commonAPIHandle(
-            window.callAPI(`/file/${endpoint}_operation`, { action: action, ...(typeof data === "string" ? { path: data } : data) }),
+            window.callAPI(`${window.fileManager.fileEndpointPath}/${endpoint}_operation`, { action: action, ...(typeof data === "string" ? { path: data } : data) }),
             (err) => commonCatch(err, action, data)
         );
     }
@@ -271,7 +271,7 @@
                 getFile(fullPath).then(text => window.downloadTextFile(text, principalName));
                 break;
             case "edit":
-                if (!["txt", "log"].includes(getExtension(fullPath))) {
+                if (!window.config.fileManager.editableFiles.includes(getExtension(fullPath))) {
                     infoDialog("Cannot Edit", "Only plaintext or log files may be edited");
                     return;
                 }

@@ -2,37 +2,34 @@
 
 
 function pageload() {
-    const jsToLoad = ["mission_control", "robot_devices", "telemetry", "file_manager", "camera_feed"];
-    jsToLoad.forEach(js => document.body.appendChild(document.elemOf("script", {
-        src: "/js/" + js + ".js",
-        type: "text/javascript"
-    })));
+
+    const pageTitle = "FTC-" + window.config.team_number + " Robot Web Dashboard";
+    document.getElementById("page-title").innerHTML = pageTitle;
+    document.title = pageTitle;
+
+    window.config.modules.forEach(js => {
+        const script = document.createElement("script");
+        script.src = `/js/${js}.js`;
+        script.type = "text/javascript";
+        document.body.appendChild(script);
+    });
 }
 
 
-fetch("http://localhost:8080/config.json")
-    .then(req => {
-        if (!req.ok) {
-            throw new Error(`Config.json not found, responded with ${req.status}.`);
-        }
-        return req;
-    })
-    .then(res => res.json())
-    .catch(err => {
-        alert("Failed to load config.json. Check the console for more details. Unexpected issues may occur.");
-        console.error(err);
-        pageload();
-    })
-    .then(data => {
-        window.config = data;
+if (!window.config) {
+    alert("Failed to load config.json. Check the console for more details.");
+    console.error(err);
+    return;
+}
 
-        const pageTitle = document.getElementById("page-title");
-        pageTitle.innerHTML = "FTC-" + data.team_number + " Robot Web Dashboard";
-        document.title = "FTC-" + data.team_number + " Robot Web Dashboard";
+pageload();
 
-        pageload();
-    });
 
+
+// Ease of access methods for accessing config
+window.getEndpoint = (name) => {
+    return window.config.apiEndpoints[name];
+}
 
 
 window.fixPath = (path) => path.replace(/\/+/g, "/");

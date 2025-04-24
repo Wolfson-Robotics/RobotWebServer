@@ -2,7 +2,6 @@ package org.wolfsonrobotics.RobotWebServer.server.api.robot;
 
 import fi.iki.elonen.NanoHTTPD;
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 import org.wolfsonrobotics.RobotWebServer.communication.MethodArg;
 import org.wolfsonrobotics.RobotWebServer.server.api.RobotAPI;
@@ -50,17 +49,6 @@ public class CallMethod extends RobotAPI {
                     return MethodArg.of(type, obj.get(type));
                 }).toArray(MethodArg[]::new);
 
-        // temp for now manually switch bigdecimal to double
-        // TOD: just make the above function not get BigDecimal at all
-        /*
-        for (int i = 0; i < argTypes.size(); i++) {
-            if (argTypes.get(i).getClass().equals(BigDecimal.class)) {
-                double converted = ((BigDecimal) (argTypes.get(i))).doubleValue();
-                argTypes.set(i, converted);
-            }
-
-        }*/
-
         try {
             this.comLayer.call(body.getString("name"), mArgs);
         } catch (IllegalAccessException e) {
@@ -71,9 +59,7 @@ public class CallMethod extends RobotAPI {
             throw new RobotException(e);
         }
 
-        JSONObject success = new JSONObject();
-        success.put("message", "Success");
-        return success.toString();
+        return success();
 
     }
 }

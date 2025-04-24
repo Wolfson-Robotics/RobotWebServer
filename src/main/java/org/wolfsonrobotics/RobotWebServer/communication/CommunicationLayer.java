@@ -9,20 +9,20 @@ import java.util.*;
 public class CommunicationLayer {
 
     private final Object instance;
-    private Method[] methods;
+    private Method[] providedMethods;
     private Set<Method> excludedMethods;
 
     public CommunicationLayer(Object instance) {
         this.instance = instance;
     }
 
-    public CommunicationLayer(Object instance, Method[] methods, Method[] excludedMethods) {
+    public CommunicationLayer(Object instance, Method[] providedMethods, Method[] excludedMethods) {
         this(instance);
-        this.methods = methods;
+        this.providedMethods = providedMethods;
         this.excludedMethods = new HashSet<>(Arrays.asList(excludedMethods));
     }
-    public CommunicationLayer(Object instance, String[] methods, String[] excludedMethods) {
-        this(instance, stringToMethod(instance, methods), stringToMethod(instance, excludedMethods));
+    public CommunicationLayer(Object instance, String[] providedMethods, String[] excludedMethods) {
+        this(instance, stringToMethod(instance, providedMethods), stringToMethod(instance, excludedMethods));
     }
 
 
@@ -57,7 +57,7 @@ public class CommunicationLayer {
     }
 
     public Method[] getCallableMethods() {
-        Method[] methods = Optional.ofNullable(this.methods).orElseGet(this::getInstanceMethods);
+        Method[] methods = Optional.ofNullable(this.providedMethods).orElseGet(this::getInstanceMethods);
         if (excludedMethods == null) {
             return methods;
         }

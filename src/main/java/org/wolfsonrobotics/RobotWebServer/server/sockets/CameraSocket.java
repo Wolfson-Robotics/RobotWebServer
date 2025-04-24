@@ -6,6 +6,7 @@ import nu.pattern.OpenCV;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.wolfsonrobotics.RobotWebServer.ServerConfig;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class CameraSocket extends BaseSocket {
     @Override
     protected void onMessage(NanoWSD.WebSocketFrame message) {
 
-        Mat cameraFeed = (Mat) commLayer.callNoThrows("getCameraFeed");
+        Mat cameraFeed = (Mat) commLayer.callNoThrows(ServerConfig.CAMERA_FEED_METHOD);
         MatOfByte buffer = new MatOfByte();
         boolean success = Imgcodecs.imencode(".jpg", cameraFeed, buffer);
 

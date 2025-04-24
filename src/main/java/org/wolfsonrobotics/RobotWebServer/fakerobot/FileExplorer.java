@@ -145,7 +145,7 @@ public class FileExplorer {
         if (!toAbsFile(dirPath).delete()) throw new IOException("The provided directory " + dirPath + " could not be fully deleted.");
     }
 
-    // Intended for use with the FileLogger class in the robot code
+    // TODO: Intended for use with the FileLogger class in the robot code
     /*
     public FileLogger fileAsLogger(String filePath) {
         return new FileLogger(toAbsPath(filePath));

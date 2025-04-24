@@ -19,7 +19,7 @@ public abstract class BaseAPI {
     protected JSONObject body;
     protected Map<String, String> parameters;
 
-    public String responseType = "text/plain; charset=utf-8";
+    protected String responseType = "text/plain; charset=utf-8";
 
 
     protected BaseAPI(IHTTPSession session) {
@@ -85,6 +85,9 @@ public abstract class BaseAPI {
     public String getBody(String key) throws BadInputException {
         return getBody(key, String.class);
     }
+    public String getResponseType() {
+        return this.responseType;
+    }
 
     public JSONObject singletonObj(String key, Object val) {
         return new JSONObject() {{
@@ -93,7 +96,7 @@ public abstract class BaseAPI {
     }
     // Generic responses
     public String success() {
-        return singletonObj("message", "success").toString();
+        return singletonObj("message", "Success").toString();
     }
 
 

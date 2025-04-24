@@ -1,7 +1,7 @@
 (async function robot_devices() {
 
     const root = document.getElementById("robot-devices");
-    const deviceInfoSocket = window.startSocket("/robot/device_info");
+    const deviceInfoSocket = window.startSocket(window.getEndpoint("deviceInfo"));
     deviceInfoSocket.onmessage = (e) => {
 
 
