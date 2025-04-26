@@ -1,0 +1,50 @@
+buildscript {
+    ext.sdk_version = "10.2.0"
+}
+
+plugins {
+    id 'com.android.library'
+}
+
+android {
+    namespace 'org.wolfsonrobotics.RobotWebServer'
+    compileSdk 30
+
+    defaultConfig {
+//        applicationId "org.wolfsonrobotics.RobotWebServer"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+
+//    implementation "androidx.annotation:annotation:1.1.0"
+
+    api "org.firstinspires.ftc:RobotCore:$sdk_version"
+    api "org.firstinspires.ftc:Hardware:$sdk_version"
+    api "org.firstinspires.ftc:RobotServer:$sdk_version"
+    api "org.firstinspires.ftc:FtcCommon:$sdk_version"
+    api "org.firstinspires.ftc:Vision:$sdk_version"
+
+    // Exclude NanoHTTPD module from websocket import to keep
+    // NanoWSD classes but not conflict with FTC SDK's NanoHTTPD module
+    implementation("org.nanohttpd:nanohttpd-websocket:2.3.1") {
+        exclude module: "nanohttpd"
+    }
+}
