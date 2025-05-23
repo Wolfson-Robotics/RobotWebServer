@@ -47,7 +47,7 @@ public class CommunicationLayer {
     }
 
     public boolean instanceOf(Class<?> clazz) {
-        return instance.getClass().equals(clazz);
+        return instance.getClass().isAssignableFrom(clazz);
     }
 
     private Method[] getInstanceMethods() {
@@ -70,13 +70,26 @@ public class CommunicationLayer {
     }
 
     public String[] getFields() {
-        return Arrays.stream(instance.getClass().getDeclaredFields()).map(Field::getName).toArray(String[]::new);
+        return Arrays.stream(instance.getClass().getDeclaredFields())
+                .peek(f -> f.setAccessible(true))
+                .map(Field::getName).toArray(String[]::new);
+    }
+
+    // Recursive function to check for fields in parent classes that are in the instance
+    private Field getField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
+        try {
+            return clazz.getDeclaredField(fieldName);
+        } catch (NoSuchFieldException e) {
+            if (clazz.getSuperclass() == null) throw e;
+            return getField(clazz.getSuperclass(), fieldName);
+        }
     }
     public Object getField(String fieldName) throws NoSuchFieldException, IllegalAccessException {
-        Field field = instance.getClass().getDeclaredField(fieldName);
+        Field field = getField(instance.getClass(), fieldName);
         field.setAccessible(true);
         return field.get(instance);
     }
+
     public CommunicationLayer getFieldLayer(String fieldName) throws NoSuchFieldException, IllegalAccessException {
         return new CommunicationLayer(getField(fieldName));
     }

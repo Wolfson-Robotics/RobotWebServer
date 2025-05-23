@@ -41,6 +41,7 @@ public class WebServerInputDemo extends LinearOpMode {
         while (opModeIsActive()) {
 
         }
+        server.stop();
 
     }
 

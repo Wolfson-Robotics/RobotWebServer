@@ -25,7 +25,6 @@ import fi.iki.elonen.NanoWSD;
 
 public class RobotWebServer extends NanoHTTPD {
 
-
     private NanoWSD webSocket;
     private final CommunicationLayer commLayer;
     private final FileExplorer robotStorage;
@@ -122,11 +121,18 @@ public class RobotWebServer extends NanoHTTPD {
 
         }
 
+
+
         if (fileToServe.exists() && fileToServe.isFile()) {
+
+            int dot = fileToServe.getName().lastIndexOf('.');
+            String mime = dot >= 0 ? ServerConfig.mimeTypes.get(fileToServe.getName().substring(dot + 1).toLowerCase()) : "text/html";
+
             try {
                 return newChunkedResponse(
                         Response.Status.OK,
-                        getMimeTypeForFile(fileToServe.getName()),
+                        mime,
+//                        getMimeTypeForFile(fileToServe.getName()).equals("application/octet-stream") ? "text/html" : getMimeTypeForFile(fileToServe.getName()),
                         new FileInputStream(fileToServe));
             } catch (FileNotFoundException e) {
                 e.printStackTrace();

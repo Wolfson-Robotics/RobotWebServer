@@ -93,6 +93,9 @@ public class WebServerLoggingDemo extends LinearOpMode {
             this.rf_drive.setPower(gamepad1.right_stick_y + gamepad1.left_stick_x);
             this.rb_drive.setPower(gamepad1.right_stick_y + gamepad1.left_stick_x);
 
+            this.arm.setPosition(-gamepad2.left_stick_y);
+            this.claw.setPosition(gamepad2.right_bumper ? 0.2 : -0.2);
+
             telemetry.addData("lf_drive pos", this.lf_drive.getCurrentPosition());
             telemetry.addData("lf_drive power", this.lf_drive.getPower());
             telemetry.addData("lb_drive pos", this.lb_drive.getCurrentPosition());
@@ -105,6 +108,7 @@ public class WebServerLoggingDemo extends LinearOpMode {
             telemetry.addData("claw pos", this.claw.getPosition());
             telemetry.update();
         }
+        server.stop();
 
     }
 

@@ -4,8 +4,12 @@ import android.os.Environment;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorImpl;
+import com.qualcomm.robotcore.hardware.DcMotorImplEx;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.ServoImpl;
+import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.wolfsonrobotics.RobotWebServer.server.api.FileAPI;
 import org.wolfsonrobotics.RobotWebServer.server.api.RobotAPI;
@@ -25,9 +29,9 @@ import java.util.Map;
 
 public class ServerConfig {
 
-    public static final String WEBROOT = "website/";
-    public static final int PORT = 8080;
-    public static final int SOCKET_PORT = 9090;
+    public static final String WEBROOT = Environment.getExternalStorageDirectory().getPath() + "/website/";
+    public static final int PORT = 39537;
+    public static final int SOCKET_PORT = 39538;
     public static final int SOCKET_START_TIMEOUT = 60000;
 
     public static final String CONTROL_HUB_STORAGE = Environment.getExternalStorageDirectory().getPath();
@@ -36,6 +40,12 @@ public class ServerConfig {
 
     public static final int DEFAULT_SOCKET_MSG_FREQUENCY = 500;
 
+    // TODO: Properly load NanoHTTPD properties files later
+    public static final Map<String, String> mimeTypes = new HashMap<String, String>() {{
+        put("html", "text/html");
+        put("css", "text/css");
+        put("js", "text/javascript");
+    }};
 
     public static final Map<String, Class<? extends RobotAPI>> robotAPIMap = new HashMap<String, Class<? extends RobotAPI>>() {{
         put("/robot/all_methods", AllMethods.class);
@@ -58,18 +68,21 @@ public class ServerConfig {
 
 
     public static final String CAMERA_FEED_METHOD = "getCameraFeed";
+    public static final Map<String, String> motorProperties = new HashMap<String, String>() {{
+        put("Power", "getPower");
+        put("Position", "getCurrentPosition");
+    }};
+    public static final Map<String, String> servoProperties = new HashMap<String, String>() {{
+        put("Position", "getPosition");
+    }};
     public static final Map<Class<? extends HardwareDevice>, Map<String, String>> deviceInfoMap = new HashMap<Class<? extends HardwareDevice>, Map<String, String>>() {{
-        put(DcMotor.class, new HashMap<String, String>() {{
-            put("Power", "getPower");
-            put("Position", "getPosition");
-        }});
-        put(DcMotorEx.class, new HashMap<String, String>() {{
-            put("Power", "getPower");
-            put("Position", "getPosition");
-        }});
-        put(Servo.class, new HashMap<String, String>() {{
-            put("Position", "getPosition");
-        }});
+        put(DcMotor.class, motorProperties);
+        put(DcMotorEx.class, motorProperties);
+        put(DcMotorImpl.class, motorProperties);
+        put(DcMotorImplEx.class, motorProperties);
+        put(Servo.class, servoProperties);
+        put(ServoImpl.class, servoProperties);
+        put(ServoImplEx.class, servoProperties);
     }};
 
     public static final String TELEMETRY_FIELD = "telemetry";
