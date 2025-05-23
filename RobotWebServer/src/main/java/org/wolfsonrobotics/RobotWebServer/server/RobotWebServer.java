@@ -1,6 +1,8 @@
 package org.wolfsonrobotics.RobotWebServer.server;
 
 
+import android.webkit.MimeTypeMap;
+
 import org.wolfsonrobotics.RobotWebServer.ServerConfig;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 import org.wolfsonrobotics.RobotWebServer.robot.FileExplorer;
@@ -124,15 +126,16 @@ public class RobotWebServer extends NanoHTTPD {
 
 
         if (fileToServe.exists() && fileToServe.isFile()) {
-
-            int dot = fileToServe.getName().lastIndexOf('.');
-            String mime = dot >= 0 ? ServerConfig.mimeTypes.get(fileToServe.getName().substring(dot + 1).toLowerCase()) : "text/html";
+            String extension = MimeTypeMap.getFileExtensionFromUrl(fileToServe.getPath());
+            if (extension == null) {
+                return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "File extension returned null");
+            }
+            String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
 
             try {
                 return newChunkedResponse(
                         Response.Status.OK,
                         mime,
-//                        getMimeTypeForFile(fileToServe.getName()).equals("application/octet-stream") ? "text/html" : getMimeTypeForFile(fileToServe.getName()),
                         new FileInputStream(fileToServe));
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
