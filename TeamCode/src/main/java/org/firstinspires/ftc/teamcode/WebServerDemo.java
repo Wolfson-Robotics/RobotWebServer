@@ -1,10 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Mat;
@@ -13,36 +9,22 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.wolfsonrobotics.RobotWebServer.server.RobotWebServer;
+import org.wolfsonrobotics.RobotWebServer.server.ServerOpMode;
 
 import java.io.IOException;
 
-@TeleOp(name = "WebServerLoggingDemo")
-public class WebServerLoggingDemo extends LinearOpMode {
-
-    private DcMotorEx lf_drive, lb_drive, rf_drive, rb_drive;
-    private Servo arm, claw;
+@TeleOp(name = "WebServerDemo")
+public class WebServerDemo extends RobotBaseStub implements ServerOpMode {
 
     private Mat currFeed;
     private OpenCvCamera camera;
 
+    private final String cameraName = "Webcam 1";
 
-    public void initMotors() {
-        this.lf_drive = hardwareMap.get(DcMotorEx.class, "lf_drive");
-        this.lb_drive = hardwareMap.get(DcMotorEx.class, "lb_drive");
-        this.rf_drive = hardwareMap.get(DcMotorEx.class, "rf_drive");
-        this.rb_drive = hardwareMap.get(DcMotorEx.class, "rb_drive");
-
-        this.arm = hardwareMap.get(Servo.class, "arm");
-        this.claw = hardwareMap.get(Servo.class, "claw");
-
-        this.lf_drive.setDirection(DcMotorSimple.Direction.REVERSE);
-        this.lb_drive.setDirection(DcMotorSimple.Direction.REVERSE);
-    }
 
     public void initCamera() {
-        String cameraName = "Camera";
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        this.camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, cameraName), cameraMonitorViewId);
+        this.camera = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, this.cameraName), cameraMonitorViewId);
         camera.setPipeline(new OpenCvPipeline() {
             @Override
             public Mat processFrame(Mat input) {
@@ -88,6 +70,7 @@ public class WebServerLoggingDemo extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
+
             this.lf_drive.setPower(gamepad1.right_stick_y + gamepad1.left_stick_x);
             this.lb_drive.setPower(gamepad1.right_stick_y + gamepad1.left_stick_x);
             this.rf_drive.setPower(gamepad1.right_stick_y + gamepad1.left_stick_x);
@@ -112,5 +95,14 @@ public class WebServerLoggingDemo extends LinearOpMode {
 
     }
 
+    // Test for method exclusion per op mode
+    public void a() {
+        System.out.println("excluded");
+    }
 
+
+    @Override
+    public String[] getExcludedMethods() {
+        return new String[] { "a" };
+    }
 }

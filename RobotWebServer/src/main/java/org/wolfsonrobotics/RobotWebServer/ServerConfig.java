@@ -36,14 +36,14 @@ public class ServerConfig {
 
     public static final String CONTROL_HUB_STORAGE = Environment.getExternalStorageDirectory().getPath();
     public static final String[] COMM_METHODS = null;
-    public static final String[] EXCLUDED_COMM_METHODS = { "getCameraFeed" };
+    public static final String[] EXCLUDED_COMM_METHODS = { "getExcludedMethods", "getCameraFeed", "runOpMode" };
 
-    public static final int DEFAULT_SOCKET_MSG_FREQUENCY = 500;
+    public static final int DEFAULT_SOCKET_MSG_FREQUENCY = 200;
 
-    // TODO: Properly load NanoHTTPD properties files later
+    // TODO: Make these maps private and have better access
+    // Hardcoded mime types, as no Android packages (even the NanoHTTPD version) serve
+    // these mime types correctly
     public static final Map<String, String> mimeTypes = new HashMap<String, String>() {{
-        put("html", "text/html");
-        put("css", "text/css");
         put("js", "text/javascript");
     }};
 

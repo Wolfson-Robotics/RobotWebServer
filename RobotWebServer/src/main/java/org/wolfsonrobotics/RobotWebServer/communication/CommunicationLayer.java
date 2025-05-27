@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.stream.Stream;
 
 public class CommunicationLayer {
 
@@ -47,13 +48,20 @@ public class CommunicationLayer {
     }
 
     public boolean instanceOf(Class<?> clazz) {
-        return instance.getClass().isAssignableFrom(clazz);
+        return instance != null && instance.getClass().isAssignableFrom(clazz);
     }
 
+    private Method[] getInstanceMethods(Class<?> clazz, Stream<Method> stream) {
+        if (clazz == null) return stream.toArray(Method[]::new);
+        return getInstanceMethods(clazz.getSuperclass(),
+                Stream.concat(
+                        Optional.ofNullable(stream).orElse(Stream.empty()),
+                        Arrays.stream(clazz.getDeclaredMethods())
+                            .filter(m -> Modifier.isPublic(m.getModifiers()) || Modifier.isProtected(m.getModifiers()))
+                ));
+    }
     private Method[] getInstanceMethods() {
-        return Arrays.stream(instance.getClass().getDeclaredMethods())
-                .filter(m -> Modifier.isPublic(m.getModifiers()) || Modifier.isProtected(m.getModifiers()))
-                .toArray(Method[]::new);
+        return getInstanceMethods(instance.getClass(), null);
     }
 
     public Method[] getCallableMethods() {
@@ -72,7 +80,8 @@ public class CommunicationLayer {
     public String[] getFields() {
         return Arrays.stream(instance.getClass().getDeclaredFields())
                 .peek(f -> f.setAccessible(true))
-                .map(Field::getName).toArray(String[]::new);
+                .map(Field::getName)
+                .toArray(String[]::new);
     }
 
     // Recursive function to check for fields in parent classes that are in the instance
@@ -95,9 +104,18 @@ public class CommunicationLayer {
     }
 
 
-    public Object call(String inputName, MethodArg... args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Method method = instance.getClass().getMethod(inputName, Arrays.stream(args).map(MethodArg::type).toArray(Class[]::new));
+    private Object call(Class<?> clazz, String inputName, MethodArg... args) throws InvocationTargetException, IllegalAccessException {
+        Method method;
+        try {
+            method = instance.getClass().getMethod(inputName, Arrays.stream(args).map(MethodArg::type).toArray(Class[]::new));
+        } catch (NoSuchMethodException e) {
+            if (clazz.getSuperclass() == null) return e;
+            return call(clazz.getSuperclass(), inputName, args);
+        }
         return method.invoke(instance, Arrays.stream(args).map(MethodArg::arg).toArray());
+    }
+    public Object call(String inputName, MethodArg... args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        return call(instance.getClass(), inputName, args);
     }
     public Object call(String inputName) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         return call(inputName, new MethodArg[] {});

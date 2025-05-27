@@ -24,7 +24,7 @@ public abstract class BaseSocket extends WebSocket {
     }
 
     protected void keepRunning(Runnable fn, long ms) {
-        ticker.scheduleAtFixedRate(fn, 0, ms, TimeUnit.MILLISECONDS);
+        ticker.scheduleWithFixedDelay(fn, 0, ms, TimeUnit.MILLISECONDS);
     }
     protected void keepRunning(Runnable fn) {
         keepRunning(fn, ServerConfig.DEFAULT_SOCKET_MSG_FREQUENCY);

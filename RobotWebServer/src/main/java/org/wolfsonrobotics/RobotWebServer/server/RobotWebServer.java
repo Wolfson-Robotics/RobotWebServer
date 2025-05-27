@@ -14,13 +14,16 @@ import org.wolfsonrobotics.RobotWebServer.util.GsonHelper;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
@@ -47,8 +50,15 @@ public class RobotWebServer extends NanoHTTPD {
         this.robotStorage = robotStorage;
 
     }
-    public RobotWebServer(Object instance) {
-        this(new CommunicationLayer(instance, ServerConfig.COMM_METHODS, ServerConfig.EXCLUDED_COMM_METHODS));
+    public RobotWebServer(ServerOpMode instance) {
+        this(new CommunicationLayer(
+                instance,
+                ServerConfig.COMM_METHODS,
+                Stream.concat(
+                        Arrays.stream(ServerConfig.EXCLUDED_COMM_METHODS),
+                        Arrays.stream(instance.getExcludedMethods())
+                ).toArray(String[]::new)
+        ));
     }
 
 
@@ -130,7 +140,8 @@ public class RobotWebServer extends NanoHTTPD {
             if (extension == null) {
                 return newFixedLengthResponse(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "File extension returned null");
             }
-            String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+            String mime = Optional.ofNullable(MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension))
+                    .orElse(ServerConfig.mimeTypes.get(extension));
 
             try {
                 return newChunkedResponse(
