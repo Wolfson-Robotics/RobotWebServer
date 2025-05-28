@@ -27,13 +27,17 @@ public class CommunicationLayer {
     }
 
 
-    private static Method stringToMethod(Object instance, String methodName) {
+    private static Method stringToMethod(Class<?> clazz, String methodName) {
+        if (clazz == null) return null;
         if (methodName == null) return null;
         try {
-            return instance.getClass().getDeclaredMethod(methodName);
+            return clazz.getDeclaredMethod(methodName);
         } catch (NoSuchMethodException e) {
-            return null;
+            return stringToMethod(clazz.getSuperclass(), methodName);
         }
+    }
+    private static Method stringToMethod(Object instance, String methodName) {
+        return stringToMethod(instance.getClass(), methodName);
     }
     private static Method[] stringToMethod(Object instance, String[] methodNames) {
         if (methodNames == null) return null;

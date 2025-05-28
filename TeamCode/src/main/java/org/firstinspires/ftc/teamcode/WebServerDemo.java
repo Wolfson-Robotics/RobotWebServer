@@ -103,6 +103,6 @@ public class WebServerDemo extends RobotBaseStub implements ServerOpMode {
 
     @Override
     public String[] getExcludedMethods() {
-        return new String[] { "a" };
+        return new String[] { "initCamera", "a" };
     }
 }

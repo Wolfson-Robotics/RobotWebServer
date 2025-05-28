@@ -36,7 +36,7 @@ public class ServerConfig {
 
     public static final String CONTROL_HUB_STORAGE = Environment.getExternalStorageDirectory().getPath();
     public static final String[] COMM_METHODS = null;
-    public static final String[] EXCLUDED_COMM_METHODS = { "getExcludedMethods", "getCameraFeed", "runOpMode" };
+    public static final String[] EXCLUDED_COMM_METHODS = { "getExcludedMethods", "getCameraFeed", "runOpMode", "idle", "init", "init_loop", "isStarted", "isStopRequested", "loop", "opModeInInit", "opModeIsActive", "start", "stop", "waitForStart", "getRuntime", "internalPostInitLoop", "internalPostLoop", "internalPreInit", "internalUpdateTelemetryNow", "resetRuntime", "terminateOpModeNow", "updateTelemetry", "requestOpModeStop", "clone", "equals", "finalize", "getClass", "hashCode", "notify", "notifyAll", "toString" };
 
     public static final int DEFAULT_SOCKET_MSG_FREQUENCY = 200;
 

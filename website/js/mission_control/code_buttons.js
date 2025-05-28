@@ -77,7 +77,7 @@ export function run(missionLib) {
         domForm.addEventListener("submit", e => submit(e, methodName, domForm));
 
         if (args.length !== 0) {
-            args[0].forEach(input => domForm.appendChild(dataTypeToInputType(input)));
+            args.forEach(input => domForm.appendChild(dataTypeToInputType(input)));
         }
 
         const domButton = document.createElement("input");
@@ -86,6 +86,7 @@ export function run(missionLib) {
         domForm.appendChild(domButton);
 
         domInputs.appendChild(domForm);
+		domInputs.appendChild(document.elemOf("br"));
 
     });
 
