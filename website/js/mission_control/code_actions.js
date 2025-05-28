@@ -51,7 +51,7 @@ export function run(controlLib) {
                 await controlLib.callMethod(info[1]).catch(err => {
                     stop = true;
                     console.error(err);
-                    alert(`An error occurred calling method ${method.name} at line ${index + 1}. Please see the console for more details.`);
+                    alert(`An error occurred calling method ${method.name} at line ${index + 1}:\n${err}`);
                 });
             }
 

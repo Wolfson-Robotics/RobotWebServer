@@ -1,6 +1,7 @@
 (async() => {
 
 
+// TODO: Make this configurable (decide whether config.js should hold it or server-side)
 const SOCKET_PORT = 39538;
 
 

@@ -16,6 +16,7 @@ import org.wolfsonrobotics.RobotWebServer.server.api.RobotAPI;
 import org.wolfsonrobotics.RobotWebServer.server.api.file.DirectoryAction;
 import org.wolfsonrobotics.RobotWebServer.server.api.file.FileAction;
 import org.wolfsonrobotics.RobotWebServer.server.api.file.Listing;
+import org.wolfsonrobotics.RobotWebServer.server.api.robot.AllFields;
 import org.wolfsonrobotics.RobotWebServer.server.api.robot.AllMethods;
 import org.wolfsonrobotics.RobotWebServer.server.api.robot.CallMethod;
 import org.wolfsonrobotics.RobotWebServer.server.api.robot.CameraFeed;
@@ -38,7 +39,7 @@ public class ServerConfig {
     public static final String[] COMM_METHODS = null;
     public static final String[] EXCLUDED_COMM_METHODS = { "getExcludedMethods", "getCameraFeed", "runOpMode", "idle", "init", "init_loop", "isStarted", "isStopRequested", "loop", "opModeInInit", "opModeIsActive", "start", "stop", "waitForStart", "getRuntime", "internalPostInitLoop", "internalPostLoop", "internalPreInit", "internalUpdateTelemetryNow", "resetRuntime", "terminateOpModeNow", "updateTelemetry", "requestOpModeStop", "clone", "equals", "finalize", "getClass", "hashCode", "notify", "notifyAll", "toString" };
 
-    public static final int DEFAULT_SOCKET_MSG_FREQUENCY = 200;
+    public static final int DEFAULT_SOCKET_MSG_FREQUENCY = 100;
 
     // TODO: Make these maps private and have better access
     // Hardcoded mime types, as no Android packages (even the NanoHTTPD version) serve
@@ -50,6 +51,7 @@ public class ServerConfig {
     public static final Map<String, Class<? extends RobotAPI>> robotAPIMap = new HashMap<String, Class<? extends RobotAPI>>() {{
         put("/robot/all_methods", AllMethods.class);
         put("/robot/call_method", CallMethod.class);
+        put("/robot/all_fields", AllFields.class);
         put("/robot/camera_feed", CameraFeed.class);
     }};
 

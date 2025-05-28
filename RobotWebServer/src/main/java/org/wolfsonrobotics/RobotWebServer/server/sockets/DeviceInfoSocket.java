@@ -9,6 +9,7 @@ import fi.iki.elonen.NanoWSD;
 
 import org.wolfsonrobotics.RobotWebServer.ServerConfig;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
+import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.RobotException;
 import org.wolfsonrobotics.RobotWebServer.util.GsonHelper;
 
@@ -62,7 +63,8 @@ public class DeviceInfoSocket extends BaseSocket {
                     }
                     info.add(compInfo);
 
-                } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+                } catch (InvocationTargetException | NoSuchMethodException | IllegalAccessException |
+                         BadInputException e) {
                     throw new RobotException(e);
                 }
 

@@ -1,5 +1,7 @@
 package org.wolfsonrobotics.RobotWebServer.communication;
 
+import org.wolfsonrobotics.RobotWebServer.server.api.exception.BadInputException;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -81,9 +83,13 @@ public class CommunicationLayer {
 
     }
 
-    public String[] getFields() {
+    public Field[] getRawFields() {
         return Arrays.stream(instance.getClass().getDeclaredFields())
                 .peek(f -> f.setAccessible(true))
+                .toArray(Field[]::new);
+    }
+    public String[] getFields() {
+        return Arrays.stream(getRawFields())
                 .map(Field::getName)
                 .toArray(String[]::new);
     }
@@ -108,7 +114,7 @@ public class CommunicationLayer {
     }
 
 
-    private Object call(Class<?> clazz, String inputName, MethodArg... args) throws InvocationTargetException, IllegalAccessException {
+    private Object call(Class<?> clazz, String inputName, MethodArg... args) throws InvocationTargetException, IllegalAccessException, BadInputException {
         Method method;
         try {
             method = instance.getClass().getMethod(inputName, Arrays.stream(args).map(MethodArg::type).toArray(Class[]::new));
@@ -116,12 +122,33 @@ public class CommunicationLayer {
             if (clazz.getSuperclass() == null) return e;
             return call(clazz.getSuperclass(), inputName, args);
         }
-        return method.invoke(instance, Arrays.stream(args).map(MethodArg::arg).toArray());
+
+        List<Object> argObjs = new ArrayList<>();
+        // For loop instead of Array streams to catch errors
+        for (MethodArg arg : args) {
+            Object argObj = arg.arg();
+            // If the value is a String but the type is not, this indicates that
+            // it is referring to an externally defined variable, i.e. a class member
+            if (!arg.type().equals(String.class) && argObj instanceof String) {
+                try {
+                    argObjs.add(getField((String) argObj));
+                    continue;
+                } catch (NoSuchFieldException e) {
+                    // In the event that a name is passed representing an externally defined variable
+                    throw new BadInputException(argObj + " is not defined");
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            argObjs.add(argObj);
+        }
+
+        return method.invoke(instance, argObjs);
     }
-    public Object call(String inputName, MethodArg... args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public Object call(String inputName, MethodArg... args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, BadInputException {
         return call(instance.getClass(), inputName, args);
     }
-    public Object call(String inputName) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public Object call(String inputName) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, BadInputException {
         return call(inputName, new MethodArg[] {});
     }
     public Object callNoThrows(String inputName) {

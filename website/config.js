@@ -20,6 +20,7 @@ window.config =
     "modules": ["mission_control", "robot_devices", "telemetry", "file_manager", "camera_feed"],
     "apiEndpoints": {
         "allMethods": "/robot/all_methods",
+		"allFields": "/robot/all_fields",
         "callMethod": "/robot/call_method",
         "deviceInfo": "/robot/device_info",
         "telemetry": "/robot/telemetry",

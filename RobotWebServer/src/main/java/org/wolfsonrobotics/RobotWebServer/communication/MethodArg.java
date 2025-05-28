@@ -53,7 +53,11 @@ public class MethodArg {
                 argType = String.class;
                 break;
             default:
-                argType = Object.class;
+                try {
+                    argType = Class.forName(type);
+                } catch (ClassNotFoundException e) {
+                    argType = Object.class;
+                }
                 break;
         }
         return new MethodArg(argType, castedArg);

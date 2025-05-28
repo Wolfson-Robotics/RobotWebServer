@@ -22,6 +22,14 @@
         return;
     }
     window.robotMethods = amRES;
+	
+	const afRES = await window.getAPI(window.getEndpoint("allFields")).then(res => res.json());
+	if (afRES.error) {
+		alert("An error occurred fetching the robot fields. Details:\n" + afRES.error);
+		return;
+	}
+	window.robotFields = afRES;
+
 
     class TypeQualifier {
 
@@ -86,11 +94,19 @@
         "float": [],
         "long": [],
         "boolean": [],
-        "String": [],
+        "String": TypeQualifier.of("Object"),
         "byte": TypeQualifier.of("double", "float", "long", "short"),
         "short": TypeQualifier.of("double", "float", "long"),
         "char": TypeQualifier.of("int", "double", "float", "long")
     }
+	// Insert field types as overloads
+	Object.values(window.robotFields).forEach(f => {
+		if (missionControlLib.typeOverloads[f[0]]) return;
+		// Copy array as to not mutate the original
+		let fDescendants = f;
+		fDescendants.shift();
+		missionControlLib.typeOverloads[f[0]] = TypeQualifier.of(...fDescendants);
+	});
 
 
     missionControlLib.typeArg = (rArg) => {
@@ -135,10 +151,17 @@
 
         // Account for inversions of variable expressions
         const invCount = rArg.count("!");
-        const foundVar = missionControlLib.getVar(rArg.replaceAll("!", ""));
+		const realVarName = rArg.replaceAll("!", "");
+		// Variables and fields are separate, as variables encapsulate TypeAssocs whereas fields merely encapsulate types
+        const foundVar = missionControlLib.getVar(realVarName);
         if (foundVar) {
             return new TypeAssoc(foundVar.type, foundVar.type === "boolean" ? (invCount % 2 === 0 ? foundVar.value : !foundVar.value) : foundVar.value);
         }
+		const foundField = window.robotFields[rArg.replaceAll("!", "")];
+		if (foundField) {
+			// Associate the type with the field name so that it may retrieved on the server-side
+			return new TypeAssoc(foundField[0], realVarName);
+		}
         return new TypeAssoc("unknown", rArg);
     }
 
