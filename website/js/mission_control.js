@@ -97,7 +97,8 @@
         "String": TypeQualifier.of("Object"),
         "byte": TypeQualifier.of("double", "float", "long", "short"),
         "short": TypeQualifier.of("double", "float", "long"),
-        "char": TypeQualifier.of("int", "double", "float", "long")
+        "char": TypeQualifier.of("int", "double", "float", "long"),
+		"com.qualcomm.robotcore.hardware.DcMotorEx": TypeQualifier.of("com.qualcomm.robotcore.hardware.DcMotor")
     }
 	// Insert field types as overloads
 	Object.values(window.robotFields).forEach(f => {
@@ -151,13 +152,13 @@
 
         // Account for inversions of variable expressions
         const invCount = rArg.count("!");
-		const realVarName = rArg.replaceAll("!", "");
+		const realVarName = rArg.replaceAll("!", "").trim();
 		// Variables and fields are separate, as variables encapsulate TypeAssocs whereas fields merely encapsulate types
         const foundVar = missionControlLib.getVar(realVarName);
         if (foundVar) {
             return new TypeAssoc(foundVar.type, foundVar.type === "boolean" ? (invCount % 2 === 0 ? foundVar.value : !foundVar.value) : foundVar.value);
         }
-		const foundField = window.robotFields[rArg.replaceAll("!", "")];
+		const foundField = window.robotFields[realVarName];
 		if (foundField) {
 			// Associate the type with the field name so that it may retrieved on the server-side
 			return new TypeAssoc(foundField[0], realVarName);
@@ -218,6 +219,9 @@
                 return;
             }
             supportedArgs.forEach(((supportedArgType, argIndex) => {
+				if (!typedArgs || !typedScore) {
+					return;
+				}
                 const callArg = typedCallArgs[argIndex].value;
                 const callArgType = typedCallArgs[argIndex].type;
 

@@ -28,6 +28,11 @@ public class GsonHelper {
         val.forEach(v -> put(obj, key, v));
     }
     public static void add(JsonArray arr, List<String> val) {
+        JsonArray list = new JsonArray();
+        addAll(list, val);
+        arr.add(list);
+    }
+    public static void addAll(JsonArray arr, List<String> val) {
         val.forEach(arr::add);
     }
 
@@ -75,6 +80,20 @@ public class GsonHelper {
     }
     public static Object getAsObj(JsonObject obj, String key) {
         return getAsObj(obj.get(key));
+    }
+
+
+    public static boolean contains(JsonArray arr, String val) {
+        return arr.contains(new JsonPrimitive(val));
+    }
+    public static boolean contains(JsonArray arr, boolean val) {
+        return arr.contains(new JsonPrimitive(val));
+    }
+    public static boolean contains(JsonArray arr, Number val) {
+        return arr.contains(new JsonPrimitive(val));
+    }
+    public static boolean contains(JsonArray arr, char val) {
+        return arr.contains(new JsonPrimitive(val));
     }
 
     public static <T> T opt(JsonObject obj, Function<JsonElement, T> fn, String key, T val) {

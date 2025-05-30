@@ -153,6 +153,9 @@ public class CommunicationLayer {
     public Object getField(String fieldName) throws NoSuchFieldException, IllegalAccessException {
         Field field = getField(instance.getClass(), fieldName);
         field.setAccessible(true);
+        return getField(field);
+    }
+    public Object getField(Field field) throws IllegalAccessException {
         return field.get(instance);
     }
 
