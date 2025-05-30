@@ -3,6 +3,7 @@ package org.wolfsonrobotics.RobotWebServer.server.api.robot;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import org.wolfsonrobotics.RobotWebServer.ServerConfig;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 import org.wolfsonrobotics.RobotWebServer.server.api.RobotAPI;
 import org.wolfsonrobotics.RobotWebServer.util.GsonHelper;
@@ -21,7 +22,7 @@ public class AllFields extends RobotAPI {
     public String handle() {
 
         JsonObject res = new JsonObject();
-        Arrays.stream(comLayer.getRawFields()).forEach(f -> {
+        Arrays.stream(comLayer.getRawFields(ServerConfig.ROBOT_DEVICE_TYPES)).forEach(f -> {
             JsonArray types = new JsonArray();
 
             Class<?> type = f.getType();

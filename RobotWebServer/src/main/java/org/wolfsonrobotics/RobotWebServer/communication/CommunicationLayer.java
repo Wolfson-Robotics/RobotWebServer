@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CommunicationLayer {
@@ -25,9 +26,31 @@ public class CommunicationLayer {
         this.excludedMethods = new HashSet<>(Arrays.asList(excludedMethods));
     }
     public CommunicationLayer(Object instance, String[] providedMethods, String[] excludedMethods) {
-        this(instance, stringToMethod(instance, providedMethods), stringToMethod(instance, excludedMethods));
+        this(instance, stringToMethod(instance, providedMethods), stringToAllMethods(instance, excludedMethods));
     }
 
+
+    private static Method[] stringToAllMethods(Class<?> clazz, List<Method> methods, String methodName) {
+        if (clazz == null) {
+            return methods.toArray(new Method[0]);
+        }
+        if (methodName == null) return null;
+        try {
+            methods.add(clazz.getDeclaredMethod(methodName));
+        } catch (NoSuchMethodException ignored) {}
+        return stringToAllMethods(clazz.getSuperclass(), methods, methodName);
+    }
+    private static Method[] stringToAllMethods(Object instance, String methodName) {
+        return stringToAllMethods(instance.getClass(), new ArrayList<>(), methodName);
+    }
+    private static Method[] stringToAllMethods(Object instance, String[] methodNames) {
+        if (methodNames == null) return null;
+        return Arrays.stream(methodNames)
+                .map(m -> CommunicationLayer.stringToAllMethods(instance, m))
+                .flatMap(Arrays::stream)
+                .filter(Objects::nonNull)
+                .toArray(Method[]::new);
+    }
 
     private static Method stringToMethod(Class<?> clazz, String methodName) {
         if (clazz == null) return null;
@@ -54,7 +77,7 @@ public class CommunicationLayer {
     }
 
     public boolean instanceOf(Class<?> clazz) {
-        return instance != null && instance.getClass().isAssignableFrom(clazz);
+        return instance != null && !instance.getClass().equals(Object.class) && instance.getClass().isAssignableFrom(clazz);
     }
 
     private Method[] getInstanceMethods(Class<?> clazz, Stream<Method> stream) {
@@ -83,15 +106,35 @@ public class CommunicationLayer {
 
     }
 
-    public Field[] getRawFields() {
-        return Arrays.stream(instance.getClass().getDeclaredFields())
-                .peek(f -> f.setAccessible(true))
-                .toArray(Field[]::new);
+    private Field[] getRawFields(Class<?> clazz, Stream<Field> stream, Set<Class<?>> typeConstraints) {
+        if (clazz == null) return stream.toArray(Field[]::new);
+        return getRawFields(
+                clazz.getSuperclass(),
+                Stream.concat(
+                    stream,
+                    Arrays.stream(clazz.getDeclaredFields())
+                            .filter(f -> typeConstraints.isEmpty() || typeConstraints.contains(f.getType()))
+                            .peek(f -> f.setAccessible(true))
+                ),
+                typeConstraints);
     }
-    public String[] getFields() {
-        return Arrays.stream(getRawFields())
+    private Field[] getRawFields(Class<?> clazz, Class<?>[] typeConstraints) {
+        return getRawFields(clazz, Stream.empty(), Arrays.stream(Optional.ofNullable(typeConstraints).orElse(new Class<?>[0])).collect(Collectors.toSet()));
+    }
+    public Field[] getRawFields(Class<?>[] typeConstraints) {
+        return getRawFields(instance.getClass(), typeConstraints);
+    }
+    public Field[] getRawFields() {
+        return getRawFields(null);
+    }
+
+    public String[] getFields(Class<?>[] typeConstraints) {
+        return Arrays.stream(getRawFields(typeConstraints))
                 .map(Field::getName)
                 .toArray(String[]::new);
+    }
+    public String[] getFields() {
+        return getFields(null);
     }
 
     // Recursive function to check for fields in parent classes that are in the instance
@@ -149,7 +192,7 @@ public class CommunicationLayer {
         return call(instance.getClass(), inputName, args);
     }
     public Object call(String inputName) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, BadInputException {
-        return call(inputName, new MethodArg[] {});
+        return instance.getClass().getMethod(inputName).invoke(instance);
     }
     public Object callNoThrows(String inputName) {
         try { return call(inputName); } catch (Exception e) { return null; }
