@@ -167,7 +167,7 @@ public class CommunicationLayer {
     private Object call(Class<?> clazz, String inputName, MethodArg... args) throws InvocationTargetException, IllegalAccessException, BadInputException {
         Method method;
         try {
-            method = instance.getClass().getMethod(inputName, Arrays.stream(args).map(MethodArg::type).toArray(Class[]::new));
+            method = clazz.getDeclaredMethod(inputName, Arrays.stream(args).map(MethodArg::type).toArray(Class[]::new));
         } catch (NoSuchMethodException e) {
             if (clazz.getSuperclass() == null) return e;
             return call(clazz.getSuperclass(), inputName, args);
@@ -193,7 +193,8 @@ public class CommunicationLayer {
             argObjs.add(argObj);
         }
 
-        return method.invoke(instance, argObjs);
+        method.setAccessible(true);
+        return method.invoke(instance, argObjs.toArray());
     }
     public Object call(String inputName, MethodArg... args) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, BadInputException {
         return call(instance.getClass(), inputName, args);

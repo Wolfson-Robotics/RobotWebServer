@@ -1,14 +1,10 @@
 package org.wolfsonrobotics.RobotWebServer.server.api.robot;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.qualcomm.robotcore.robot.Robot;
 
-import org.wolfsonrobotics.RobotWebServer.ServerConfig;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 import org.wolfsonrobotics.RobotWebServer.server.api.RobotAPI;
-import org.wolfsonrobotics.RobotWebServer.server.api.exception.RobotException;
 import org.wolfsonrobotics.RobotWebServer.util.GsonHelper;
 
 import java.util.Arrays;
@@ -48,8 +44,7 @@ public class AllFields extends RobotAPI {
                 do {
                     if (!GsonHelper.contains(types, instanceType.getName())) types.add(instanceType.getName());
                 } while ((instanceType = instanceType.getSuperclass()) != null);
-            } catch (IllegalAccessException e) {
-            }
+            } catch (IllegalAccessException ignored) {}
 
             GsonHelper.put(res, f.getName(), types);
         });
