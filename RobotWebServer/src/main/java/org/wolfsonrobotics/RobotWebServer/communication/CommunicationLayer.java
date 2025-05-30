@@ -30,14 +30,18 @@ public class CommunicationLayer {
     }
 
 
+    private static List<Method> allMethodsByName(Class<?> clazz, String methodName) {
+        if (clazz == null) return new ArrayList<>();
+        return Arrays.stream(clazz.getDeclaredMethods())
+                .filter(m -> m.getName().equals(methodName))
+                .collect(Collectors.toList());
+    }
     private static Method[] stringToAllMethods(Class<?> clazz, List<Method> methods, String methodName) {
         if (clazz == null) {
             return methods.toArray(new Method[0]);
         }
         if (methodName == null) return null;
-        try {
-            methods.add(clazz.getDeclaredMethod(methodName));
-        } catch (NoSuchMethodException ignored) {}
+        methods.addAll(allMethodsByName(clazz, methodName));
         return stringToAllMethods(clazz.getSuperclass(), methods, methodName);
     }
     private static Method[] stringToAllMethods(Object instance, String methodName) {

@@ -15,6 +15,8 @@ public abstract class RobotBaseStub extends LinearOpMode {
     protected DcMotorEx lf_drive, lb_drive, rf_drive, rb_drive;
     protected Servo arm, claw;
 
+    protected final String cameraName = "Webcam 1";
+
     protected final double intCon = 8.727272;
     protected final double powerFactor = 0.6;
     protected final double degConv = 2.5555555555555555555555555555556;

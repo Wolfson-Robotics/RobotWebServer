@@ -19,8 +19,6 @@ public class WebServerDemo extends RobotBaseStub implements ServerOpMode {
     private Mat currFeed;
     private OpenCvCamera camera;
 
-    private final String cameraName = "Webcam 1";
-
 
     public void initCamera() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
