@@ -69,13 +69,15 @@ public class WebServerDemo extends RobotBaseStub implements ServerOpMode {
 
         while (opModeIsActive()) {
 
+            // WebServerDemo should not take controller input, only host the webserver
+/*
             this.lf_drive.setPower(gamepad1.right_stick_y + gamepad1.left_stick_x);
             this.lb_drive.setPower(gamepad1.right_stick_y + gamepad1.left_stick_x);
             this.rf_drive.setPower(gamepad1.right_stick_y + gamepad1.left_stick_x);
             this.rb_drive.setPower(gamepad1.right_stick_y + gamepad1.left_stick_x);
 
             this.arm.setPosition(-gamepad2.left_stick_y);
-            this.claw.setPosition(gamepad2.right_bumper ? 0.2 : -0.2);
+            this.claw.setPosition(gamepad2.right_bumper ? 0.2 : -0.2);*/
 
             telemetry.addData("lf_drive pos", this.lf_drive.getCurrentPosition());
             telemetry.addData("lf_drive power", this.lf_drive.getPower());
