@@ -5,7 +5,7 @@
     }
     function commonCatch(err, action, data) {
         errMsg(err, action, typeof data === "object" ? data : { path: data });
-        throw err;
+        //throw err;
     }
 
     async function commonAPIHandle(req, hereCatch) {
@@ -27,7 +27,7 @@
     }
 
     async function getFile(path) {
-        return window.callAPI(`${window.fileManager.fileEndpointPath}/file_operation`, { action: "get", path: path })
+        return window.callAPI(`${window.config.fileManager.fileEndpointPath}/file_operation`, { action: "get", path: path })
             .catch(err => commonCatch(err, "get", path))
             .then(res => res.text())
             .catch(err => commonCatch(err, "get", path));
@@ -35,7 +35,7 @@
 
     async function commonOperation(endpoint, action, data) {
         return commonAPIHandle(
-            window.callAPI(`${window.fileManager.fileEndpointPath}/${endpoint}_operation`, { action: action, ...(typeof data === "string" ? { path: data } : data) }),
+            window.callAPI(`${window.config.fileManager.fileEndpointPath}/${endpoint}_operation`, { action: action, ...(typeof data === "string" ? { path: data } : data) }),
             (err) => commonCatch(err, action, data)
         );
     }

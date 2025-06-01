@@ -19,7 +19,7 @@ public class Listing extends FileAPI {
         JSONObject output = new JSONObject();
         JSONArray dirs = new JSONArray(), files = new JSONArray();
 
-        String path = session.getMethod() == NanoHTTPD.Method.POST ? this.getBody("path") : this.parameters.get("path");
+        String path = session.getMethod() == NanoHTTPD.Method.POST ? this.getBodyStr("path") : this.parameters.get("path");
 
         Arrays.stream(this.fileExplorer.dirListing(path)).forEach(file -> {
             if (file.isDirectory()) dirs.put(file.getName());

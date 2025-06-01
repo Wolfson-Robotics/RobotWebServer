@@ -1,6 +1,8 @@
 package org.wolfsonrobotics.RobotWebServer.server.api;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import org.wolfsonrobotics.RobotWebServer.server.api.exception.APIException;
@@ -70,18 +72,19 @@ public abstract class BaseAPI {
     }
 
 
-    public <T> T getBody(String key, Class<T> type) throws BadInputException {
+    // NOTE: This method only supports grabbing JsonPrimitives, not nested JSON objects
+    public JsonPrimitive getBody(String key) throws BadInputException {
         if (!(body.has(key))) {
             throw new BadInputException("No " + key + " specified");
         }
-        if (!type.isInstance(body.get(key))) {
-            throw new BadInputException("Provided " + key + " must be of type " + type.getSimpleName());
-        }
-        return type.cast(body.get(key));
+        JsonElement val = body.get(key);
+        if (!(val instanceof JsonPrimitive)) throw new BadInputException("Provided " + key + " is an object");
+        return (JsonPrimitive) val;
     }
-    public String getBody(String key) throws BadInputException {
-        return getBody(key, String.class);
+    public String getBodyStr(String key) throws BadInputException {
+        return getBody(key).getAsString();
     }
+
     public String getResponseType() {
         return this.responseType;
     }

@@ -15,25 +15,25 @@ public class FileAction extends FileAPI {
     @Override
     protected String fileHandle() throws Exception {
 
-        String path = this.getBody("path");
+        String path = this.getBodyStr("path");
         if (!this.fileExplorer.isFile(path)) throw new BadInputException("The path specified is not a file.");
 
-        switch (this.getBody("action")) {
+        switch (this.getBodyStr("action")) {
             case "get":
                 return this.fileExplorer.getFile(path);
             case "exists":
                 return GsonHelper.singletonObj("result", this.fileExplorer.fileExists(path)).toString();
             case "write":
-                this.fileExplorer.writeFile(path, this.getBody("content"), false);
+                this.fileExplorer.writeFile(path, this.getBodyStr("content"), false);
                 break;
             case "create":
                 this.fileExplorer.createFile(path, GsonHelper.optString(body, "content", ""));
                 break;
             case "copy":
-                this.fileExplorer.copyFile(path, this.getBody("to"));
+                this.fileExplorer.copyFile(path, this.getBodyStr("to"));
                 break;
             case "rename":
-                this.fileExplorer.renameFile(path, this.getBody("to"));
+                this.fileExplorer.renameFile(path, this.getBodyStr("to"));
                 break;
             case "delete":
                 this.fileExplorer.deleteFile(path);
