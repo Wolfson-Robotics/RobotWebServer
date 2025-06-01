@@ -91,6 +91,7 @@ public class WebServerDemo extends RobotBaseStub implements ServerOpMode {
             telemetry.addData("claw pos", this.claw.getPosition());
             telemetry.update();
         }
+        camera.closeCameraDevice();
         server.stop();
 
     }

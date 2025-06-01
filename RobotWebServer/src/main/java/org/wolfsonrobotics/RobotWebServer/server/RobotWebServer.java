@@ -77,6 +77,12 @@ public class RobotWebServer extends NanoHTTPD {
         System.out.println("Websocket started");
     }
 
+    @Override
+    public void stop() {
+        super.stop();
+        this.webSocket.stop();
+    }
+
 
 
 
