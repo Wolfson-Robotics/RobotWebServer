@@ -13,7 +13,7 @@
             .then(res => res.json())
             .catch(hereCatch)
             .then(json => {
-                if (json.error) hereCatch(json.error);
+                if (json.error) throw json.error;
                 return json;
             })
             .catch(hereCatch);
@@ -319,7 +319,7 @@
                     );
                 break;
             case "create-new-directory":
-                fileInputDialog("Create new directory", validateDirectoryPath, fullPath)
+                fileInputDialog("Create new directory", validateDirectoryPath, fullPath + "/")
                     .then(path => directoryOperation("create", { path: path + "/" }))
                     .then(() =>
                         fireUpdate(fullPath)

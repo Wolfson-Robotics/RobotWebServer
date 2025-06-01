@@ -1,9 +1,6 @@
 package org.wolfsonrobotics.RobotWebServer.robot;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 // Limits the scope of the explorer to the given file path on construction
 public class FileExplorer {
@@ -88,17 +85,16 @@ public class FileExplorer {
     }
 
     public void renameFile(String filePath, String newFilePath) throws IOException, IllegalAccessException {
-        Files.move(Paths.get(toAbsPath(filePath)), Paths.get(toAbsPath(newFilePath)));
-//        copyFile(filePath, newFilePath);
-//        deleteFile(filePath);
+        toAbsFile(filePath).renameTo(toAbsFile(newFilePath));
+//        Files.move(Paths.get(toAbsPath(filePath)), Paths.get(toAbsPath(newFilePath)));
     }
 
     public void copyFile(String filePath, String newFilePath) throws IOException, IllegalAccessException {
         if (fileExists(newFilePath)) {
             throw new IOException("The provided path " + newFilePath + " to copy " + filePath + " to already exists.");
         }
-        Files.copy(Paths.get(toAbsPath(filePath)), Paths.get(toAbsPath(newFilePath)), StandardCopyOption.COPY_ATTRIBUTES);
-//        createFile(newFilePath, getFile(filePath));
+//        Files.copy(Paths.get(toAbsPath(filePath)), Paths.get(toAbsPath(newFilePath)), StandardCopyOption.COPY_ATTRIBUTES);
+        createFile(newFilePath, getFile(filePath));
     }
 
     public void deleteFile(String filePath) throws IOException, IllegalAccessException {
@@ -145,9 +141,4 @@ public class FileExplorer {
         if (!toAbsFile(dirPath).delete()) throw new IOException("The provided directory " + dirPath + " could not be fully deleted.");
     }
 
-    // TODO: Intended for use with the FileLogger class in the robot code
-    /*
-    public FileLogger fileAsLogger(String filePath) {
-        return new FileLogger(toAbsPath(filePath));
-    }*/
 }

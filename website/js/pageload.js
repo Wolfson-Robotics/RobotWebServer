@@ -1,10 +1,6 @@
 (async() => {
 
 
-// TODO: Make this configurable (decide whether config.js should hold it or server-side)
-const SOCKET_PORT = 39538;
-
-
 function pageload() {
 
     const pageTitle = "FTC-" + window.config.team_number + " Robot Web Dashboard";
@@ -50,7 +46,7 @@ window.callAPI = (endpoint, payload) => {
 
 
 
-window.startSocket = (endpoint) => new WebSocket(`ws://${window.location.hostname}:${SOCKET_PORT}/${endpoint}`);
+window.startSocket = (endpoint) => new WebSocket(`ws://${window.location.hostname}:${Number(window.location.port) + 1}/${endpoint}`);
 window.aliveSocket = (socket, message = "ping", opName = String(Math.random()), timeout = 5000) => {
 
     if (!socket.running) socket.running = {};

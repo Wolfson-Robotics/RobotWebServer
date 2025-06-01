@@ -48,8 +48,14 @@ public class WebServerDemo extends RobotBaseStub implements ServerOpMode {
         });
     }
 
+
+    // Implemented methods
     public Mat getCameraFeed() {
         return this.currFeed;
+    }
+
+    public String[] getExcludedMethods() {
+        return new String[] { "initMotors", "initCamera", "a" };
     }
 
 
@@ -102,8 +108,5 @@ public class WebServerDemo extends RobotBaseStub implements ServerOpMode {
     }
 
 
-    @Override
-    public String[] getExcludedMethods() {
-        return new String[] { "initMotors", "initCamera", "a" };
-    }
+
 }

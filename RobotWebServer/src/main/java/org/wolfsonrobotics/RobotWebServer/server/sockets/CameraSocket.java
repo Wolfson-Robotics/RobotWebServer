@@ -24,6 +24,10 @@ public class CameraSocket extends BaseSocket {
     protected void onMessage(NanoWSD.WebSocketFrame message) {
 
         Mat cameraFeed = (Mat) commLayer.callNoThrows(ServerConfig.CAMERA_FEED_METHOD);
+        if (cameraFeed == null) {
+            return;
+        }
+
         MatOfByte buffer = new MatOfByte();
         boolean success = Imgcodecs.imencode(".jpg", cameraFeed, buffer);
 

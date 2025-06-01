@@ -2,7 +2,6 @@ package org.wolfsonrobotics.RobotWebServer.server;
 
 import fi.iki.elonen.NanoWSD;
 
-import org.java_websocket.WebSocket;
 import org.wolfsonrobotics.RobotWebServer.ServerConfig;
 import org.wolfsonrobotics.RobotWebServer.communication.CommunicationLayer;
 import org.wolfsonrobotics.RobotWebServer.server.sockets.BaseSocket;

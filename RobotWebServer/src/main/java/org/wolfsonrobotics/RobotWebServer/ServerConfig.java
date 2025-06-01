@@ -25,6 +25,7 @@ import org.wolfsonrobotics.RobotWebServer.server.sockets.CameraSocket;
 import org.wolfsonrobotics.RobotWebServer.server.sockets.DeviceInfoSocket;
 import org.wolfsonrobotics.RobotWebServer.server.sockets.TelemetrySocket;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +33,6 @@ public class ServerConfig {
 
     public static final String WEBROOT = Environment.getExternalStorageDirectory().getPath() + "/website/";
     public static final int PORT = 39537;
-    public static final int SOCKET_PORT = 39538;
     public static final int SOCKET_START_TIMEOUT = 60000;
 
     public static final String CONTROL_HUB_STORAGE = Environment.getExternalStorageDirectory().getPath();
@@ -41,43 +41,42 @@ public class ServerConfig {
 
     public static final int DEFAULT_SOCKET_MSG_FREQUENCY = 100;
 
-    // TODO: Make these maps private and have better access
     // Hardcoded mime types, as no Android packages (even the NanoHTTPD version) serve
-    // these mime types correctly
-    public static final Map<String, String> mimeTypes = new HashMap<String, String>() {{
+    // these particular mime types correctly
+    public static final Map<String, String> mimeTypes = Collections.unmodifiableMap(new HashMap<String, String>() {{
         put("js", "text/javascript");
-    }};
+    }});
 
-    public static final Map<String, Class<? extends RobotAPI>> robotAPIMap = new HashMap<String, Class<? extends RobotAPI>>() {{
+    public static final Map<String, Class<? extends RobotAPI>> robotAPIMap = Collections.unmodifiableMap(new HashMap<String, Class<? extends RobotAPI>>() {{
         put("/robot/all_methods", AllMethods.class);
         put("/robot/call_method", CallMethod.class);
         put("/robot/all_fields", AllFields.class);
         put("/robot/camera_feed", CameraFeed.class);
-    }};
+    }});
 
-    public static final Map<String, Class<? extends BaseSocket>> socketMap = new HashMap<String, Class<? extends BaseSocket>>() {{
+    public static final Map<String, Class<? extends BaseSocket>> socketMap = Collections.unmodifiableMap(new HashMap<String, Class<? extends BaseSocket>>() {{
         put("robot/camera_feed", CameraSocket.class);
         put("robot/device_info", DeviceInfoSocket.class);
         put("robot/telemetry", TelemetrySocket.class);
-    }};
+    }});
 
-    public static final Map<String, Class<? extends FileAPI>> fileAPIMap = new HashMap<String, Class<? extends FileAPI>>() {{
+    public static final Map<String, Class<? extends FileAPI>> fileAPIMap = Collections.unmodifiableMap(new HashMap<String, Class<? extends FileAPI>>() {{
         put("/file/listing", Listing.class);
         put("/file/file_operation", FileAction.class);
         put("/file/directory_operation", DirectoryAction.class);
-    }};
+    }});
 
 
 
     public static final String CAMERA_FEED_METHOD = "getCameraFeed";
-    public static final Map<String, String> motorProperties = new HashMap<String, String>() {{
+    public static final Map<String, String> motorProperties = Collections.unmodifiableMap(new HashMap<String, String>() {{
         put("Power", "getPower");
         put("Position", "getCurrentPosition");
-    }};
-    public static final Map<String, String> servoProperties = new HashMap<String, String>() {{
+    }});
+    public static final Map<String, String> servoProperties = Collections.unmodifiableMap(new HashMap<String, String>() {{
         put("Position", "getPosition");
-    }};
-    public static final Map<Class<? extends HardwareDevice>, Map<String, String>> deviceInfoMap = new HashMap<Class<? extends HardwareDevice>, Map<String, String>>() {{
+    }});
+    public static final Map<Class<? extends HardwareDevice>, Map<String, String>> deviceInfoMap = Collections.unmodifiableMap(new HashMap<Class<? extends HardwareDevice>, Map<String, String>>() {{
         put(DcMotor.class, motorProperties);
         put(DcMotorEx.class, motorProperties);
         put(DcMotorImpl.class, motorProperties);
@@ -85,7 +84,7 @@ public class ServerConfig {
         put(Servo.class, servoProperties);
         put(ServoImpl.class, servoProperties);
         put(ServoImplEx.class, servoProperties);
-    }};
+    }});
 
     public static final String TELEMETRY_FIELD = "telemetry";
 

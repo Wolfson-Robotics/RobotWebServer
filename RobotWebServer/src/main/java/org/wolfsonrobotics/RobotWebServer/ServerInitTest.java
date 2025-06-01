@@ -26,7 +26,6 @@ public class ServerInitTest {
         }
 
         // Loop to keep things updated for the FakeRobot for demonstration purposes.
-        // TODO: Is not necessary once ported to robot code
         try {
             while (ws.isAlive()) {
                 instance.populateTelemetry();

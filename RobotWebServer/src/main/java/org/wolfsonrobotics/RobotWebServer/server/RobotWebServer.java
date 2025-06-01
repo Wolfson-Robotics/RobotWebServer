@@ -14,12 +14,12 @@ import org.wolfsonrobotics.RobotWebServer.util.GsonHelper;
 import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -67,7 +67,7 @@ public class RobotWebServer extends NanoHTTPD {
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
         System.out.println("Web Server running at: http://localhost:" + ServerConfig.PORT);
 
-        this.webSocket = new HandleSocket(ServerConfig.SOCKET_PORT, this.commLayer);
+        this.webSocket = new HandleSocket(ServerConfig.PORT + 1, this.commLayer);
         try {
             this.webSocket.start(ServerConfig.SOCKET_START_TIMEOUT);
         } catch (IOException e) {
@@ -165,7 +165,7 @@ public class RobotWebServer extends NanoHTTPD {
 
     // Still encapsulate the method call in "requestPOST" for the mere sake
     // of communicating intent and permitting for possibility of other
-    // POST request handling here not appropiate for the "handleAPI"
+    // POST request handling here not appropriate for the "handleAPI"
     // function
     private Response requestPOST(IHTTPSession session) {
         return handleAPI(session);
@@ -269,7 +269,7 @@ public class RobotWebServer extends NanoHTTPD {
                 return newFixedLengthResponse(Response.Status.BAD_REQUEST, MIME_PLAINTEXT, "400 Bad Request");
             }
 
-            switch (session.getHeaders().getOrDefault("content-type", "")) {
+            switch (Objects.requireNonNull(session.getHeaders().getOrDefault("content-type", ""))) {
                 case "application/x-www-form-urlencoded":
                     Map<String, List<String>> formData = session.getParameters();
                     return newFixedLengthResponse(Response.Status.OK, MIME_PLAINTEXT, "200 OK" + "\n\n\n" +

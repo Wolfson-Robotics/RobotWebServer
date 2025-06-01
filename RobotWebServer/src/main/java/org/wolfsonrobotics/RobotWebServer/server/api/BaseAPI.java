@@ -13,6 +13,7 @@ import org.wolfsonrobotics.RobotWebServer.util.GsonHelper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract class BaseAPI {
@@ -37,7 +38,7 @@ public abstract class BaseAPI {
         switch (session.getMethod()) {
             case POST: {
 
-                if (!session.getHeaders().getOrDefault("content-type", "").equalsIgnoreCase("application/json")) {
+                if (!Objects.requireNonNull(session.getHeaders().getOrDefault("content-type", "")).equalsIgnoreCase("application/json")) {
                     throw new MalformedRequestException("Content-Type header must be application/json");
                 }
 

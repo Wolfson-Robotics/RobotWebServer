@@ -33,9 +33,14 @@ public abstract class BaseSocket extends WebSocket {
         this.keepRunning(this::onMessage);
     }
 
+    protected void stopRunning() {
+        ticker.shutdownNow();
+    }
+
 
     protected void closeError(String msg) {
         try {
+            this.stopRunning();
             close(CloseCode.InternalServerError, "An error occurred: " + msg, false);
         } catch (IOException e) {
             e.printStackTrace();
