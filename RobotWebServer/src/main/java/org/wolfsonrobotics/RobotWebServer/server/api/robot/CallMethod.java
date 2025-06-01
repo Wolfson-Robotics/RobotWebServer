@@ -19,8 +19,8 @@ import java.util.stream.IntStream;
 
 public class CallMethod extends RobotAPI {
 
-    public CallMethod(NanoHTTPD.IHTTPSession session, CommunicationLayer comLayer) {
-        super(session, comLayer);
+    public CallMethod(NanoHTTPD.IHTTPSession session, CommunicationLayer commLayer) {
+        super(session, commLayer);
     }
 
     @Override
@@ -53,7 +53,7 @@ public class CallMethod extends RobotAPI {
                 .toArray(MethodArg[]::new);
 
         try {
-            this.comLayer.call(body.get("name").getAsString(), mArgs);
+            this.commLayer.call(body.get("name").getAsString(), mArgs);
         } catch (IllegalAccessException e) {
             throw new BadInputException("The method with the specified arguments is not allowed to be called");
         } catch (NoSuchMethodException e) {

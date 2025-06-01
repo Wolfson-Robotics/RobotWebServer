@@ -14,15 +14,15 @@ import fi.iki.elonen.NanoHTTPD;
 
 public class AllFields extends RobotAPI {
 
-    public AllFields(NanoHTTPD.IHTTPSession session, CommunicationLayer comLayer) {
-        super(session, comLayer);
+    public AllFields(NanoHTTPD.IHTTPSession session, CommunicationLayer commLayer) {
+        super(session, commLayer);
     }
 
     @Override
     public String handle() {
 
         JsonObject res = new JsonObject();
-        Arrays.stream(comLayer.getRawFields()).forEach(f -> {
+        Arrays.stream(commLayer.getRawFields()).forEach(f -> {
             JsonArray types = new JsonArray();
 
             Class<?> type = f.getType();
@@ -40,7 +40,7 @@ public class AllFields extends RobotAPI {
             // we need to consider both the actual type of the instantiated variable and
             // the declared type.
             try {
-                Class<?> instanceType = Optional.ofNullable(comLayer.getField(f)).orElse(new Object()).getClass();
+                Class<?> instanceType = Optional.ofNullable(commLayer.getField(f)).orElse(new Object()).getClass();
                 do {
                     if (!GsonHelper.contains(types, instanceType.getName())) types.add(instanceType.getName());
                 } while ((instanceType = instanceType.getSuperclass()) != null);

@@ -18,8 +18,8 @@ public class AllMethods extends RobotAPI {
     // String is included, as it, for all practical purposes, is primitive
     private final List<Class<?>> primClasses = List.of(Integer.class, Double.class, Float.class, Long.class, Byte.class, Short.class, Boolean.class, Character.class, String.class);
 
-    public AllMethods(IHTTPSession session, CommunicationLayer comLayer) {
-        super(session, comLayer);
+    public AllMethods(IHTTPSession session, CommunicationLayer commLayer) {
+        super(session, commLayer);
     }
 
     private boolean isPrimitive(Class<?> clazz) {
@@ -30,7 +30,7 @@ public class AllMethods extends RobotAPI {
     public String handle() {
 
         JsonObject res = new JsonObject();
-        Arrays.stream(comLayer.getCallableMethods()).forEach(m -> {
+        Arrays.stream(commLayer.getCallableMethods()).forEach(m -> {
             List<String> paramTypes = Arrays.stream(m.getParameterTypes())
                     .map(c -> isPrimitive(c) ? c.getSimpleName() : c.getName())
                     .collect(Collectors.toList());

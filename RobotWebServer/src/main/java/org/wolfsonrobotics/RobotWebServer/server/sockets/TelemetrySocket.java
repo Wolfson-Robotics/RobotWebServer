@@ -31,7 +31,7 @@ public class TelemetrySocket extends BaseSocket {
     @SuppressWarnings("unchecked")
     public void onMessage(NanoWSD.WebSocketFrame message) {
         try {
-            send(String.join("\n", ((List<String>) commLayer.getFieldLayer(ServerConfig.TELEMETRY_FIELD).getField("composedLines"))));
+            send(String.join("\n", ((List<String>) this.telemetry.getField("composedLines"))));
         } catch (Exception e) {
             this.closeError(e);
         }

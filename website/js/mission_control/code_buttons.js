@@ -70,22 +70,26 @@ export function run(missionLib) {
     console.log("Processing inputs...");
 
     const domInputs = document.getElementById("inputs");
-    Object.entries(window.robotMethods).forEach(([methodName, args]) => {
+    Object.entries(window.robotMethods).forEach(([methodName, allArgs]) => {
 
-        const domForm = document.createElement("form");
-        domForm.id = methodName;
-        domForm.addEventListener("submit", e => submit(e, methodName, domForm));
+		allArgs.forEach(args => {
+			
+			const domForm = document.createElement("form");
+			domForm.id = methodName;
+			domForm.addEventListener("submit", e => submit(e, methodName, domForm));
 
-        if (args.length !== 0) {
-            args.forEach(input => domForm.appendChild(dataTypeToInputType(input)));
-        }
+			if (args.length !== 0) {
+				args.forEach(input => domForm.appendChild(dataTypeToInputType(input)));
+			}
 
-        const domButton = document.createElement("input");
-        domButton.type = "submit";
-        domButton.value = methodName;
-        domForm.appendChild(domButton);
+			const domButton = document.createElement("input");
+			domButton.type = "submit";
+			domButton.value = methodName;
+			domForm.appendChild(domButton);
 
-        domInputs.appendChild(domForm);
+			domInputs.appendChild(domForm);
+		
+		});
 		domInputs.appendChild(document.elemOf("br"));
 
     });
