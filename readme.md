@@ -3,22 +3,22 @@ Currently there is no online repository hosting this project. To use this projec
 
 ## To install this to Maven Local:
 
-1. Preresequites
-OpenJDK 21
+1. Preresequites \
+OpenJDK 21 \
 Android SDK
 
-2. Run this command in the project directory
+2. Run this command in the project directory \
 gradle publishToMavenLocal
 
-The project should now build and install to your OS's .m2 location:
+The project should now build and install to your OS's .m2 location: \
 https://www.baeldung.com/maven-local-repository
 
 ## To use this in a Gradle Project:
 
-1. Make sure this is added to your repositories
-mavenCentral()
+1. Make sure this is added to your repositories \
+mavenLocal()
 
-2. Implement it
+2. Implement it \
 implementation 'org.wolfsonrobotics.robotwebserver:robotwebserver:1.0'
 
 3. Sync Gradle in Android Studio
