@@ -8,25 +8,12 @@ ext {
     sdk_version = "10.2.0"
 }
 
-// publishing {
-//     publications {
-//         myLibrary(MavenPublication) {
-//             groupId = "org.wolfsonrobotics.robotwebserver"
-//             artifactId = "robotwebserver"
-//             version = "1.0"
-//
-//             from components.release
-//         }
-//     }
-// }
-
-
 publishing {
     publications {
         myLibrary(MavenPublication) {
             groupId = "org.wolfsonrobotics.robotwebserver"
             artifactId = "robotwebserver"
-            version = "1.0"
+            version = "1.1.0"
 
             afterEvaluate {
                 from components.release
